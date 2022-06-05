@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.26766304347826086" />
+        <entry key="app/src/main/res/layout/fragment_main.xml" value="0.26766304347826086" />
         <entry key="app/src/main/res/layout/fragment_youtube_sdk.xml" value="0.26766304347826086" />
       </map>
     </option>
