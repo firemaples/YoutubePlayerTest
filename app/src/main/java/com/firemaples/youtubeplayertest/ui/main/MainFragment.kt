@@ -43,11 +43,17 @@ class MainFragment : Fragment() {
 
         binding.useAndroidYoutubePlayer.setOnClickListener {
             getUrl {
+                val action = MainFragmentDirections
+                    .actionMainFragmentToAndroidYoutubePlayerFragment(it)
+                findNavController().navigate(action)
+            }
+        }
+
+        binding.useExoPlayerWithUrlExtractor.setOnClickListener {
+            getUrl {
                 findNavController()
                     .navigate(
-                        MainFragmentDirections.actionMainFragmentToAndroidYoutubePlayerFragment(
-                            it
-                        )
+                        MainFragmentDirections.actionMainFragmentToExoPlayerWithExtractorFragment(it)
                     )
             }
         }

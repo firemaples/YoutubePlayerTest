@@ -26,27 +26,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Use Youtube Android SDK" />
+        android:text="Use Youtube Android SDK"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/useAndroidYoutubePlayer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Use Android Youtube Player (3rdParty, WebView)" />
+        android:text="Use Android Youtube Player\n(3rdParty, WebView)"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/useExoPlayerWithUrlExtractor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Use ExoPlayer with URL Extractor"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/useWebView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Use WebView" />
-
-    <Button
-        android:id="@+id/useExoPlayer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Use ExoPlayer" />
+        android:text="Use WebView (Not ready)"
+        android:textAllCaps="false" />
 
 </LinearLayout>

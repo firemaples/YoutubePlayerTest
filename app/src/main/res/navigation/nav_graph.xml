@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_mainFragment_to_androidYoutubePlayerFragment"
             app:destination="@id/androidYoutubePlayerFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_exoPlayerWithExtractorFragment"
+            app:destination="@id/exoPlayerWithExtractorFragment" />
     </fragment>
 
     <fragment
@@ -33,6 +36,15 @@
         android:name="com.firemaples.youtubeplayertest.ui.androidyoutubeplayer.AndroidYoutubePlayerFragment"
         android:label="Android Youtube Player (3rdParty)"
         tools:layout="@layout/fragment_android_youtube_player">
+        <argument
+            android:name="url"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/exoPlayerWithExtractorFragment"
+        android:name="com.firemaples.youtubeplayertest.ui.exoplayerwithextractor.ExoPlayerWithExtractorFragment"
+        android:label="ExoPlayer with URL extractor"
+        tools:layout="@layout/fragment_exo_player_with_extractor">
         <argument
             android:name="url"
             app:argType="string" />

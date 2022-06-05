@@ -58,4 +58,10 @@ dependencies {
 
     // Android Youtube Player
     implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:11.0.1'
+
+    // ExoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
+
+    // HaarigerHarald/android-youtubeExtractor
+    implementation 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
 }
