@@ -55,4 +55,7 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     // Testing Navigation
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
+
+    // Android Youtube Player
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:11.0.1'
 }

@@ -40,6 +40,17 @@ class MainFragment : Fragment() {
                     .navigate(MainFragmentDirections.actionMainFragmentToYoutubeSDKFragment(it))
             }
         }
+
+        binding.useAndroidYoutubePlayer.setOnClickListener {
+            getUrl {
+                findNavController()
+                    .navigate(
+                        MainFragmentDirections.actionMainFragmentToAndroidYoutubePlayerFragment(
+                            it
+                        )
+                    )
+            }
+        }
     }
 
     override fun onDestroyView() {

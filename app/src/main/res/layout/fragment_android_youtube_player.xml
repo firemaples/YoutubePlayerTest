@@ -4,11 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.youtubesdk.YoutubeSDKFragment">
+    tools:context=".ui.androidyoutubeplayer.AndroidYoutubePlayerFragment">
 
-    <fragment
-        android:id="@+id/fragment_youtube_api_sdk"
-        android:name="com.google.android.youtube.player.YouTubePlayerSupportFragment"
+    <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+        android:id="@+id/player"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -98,6 +97,16 @@
                 android:layout_height="wrap_content"
                 android:text="Seek to\nmiddle" />
 
+            <Space
+                android:layout_width="4dp"
+                android:layout_height="4dp" />
+
+            <Button
+                android:id="@+id/setRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set rate" />
+
         </LinearLayout>
 
         <TextView
@@ -109,12 +118,6 @@
             android:id="@+id/event"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Can NOT set playback rate"
-            android:textColor="#F00" />
 
     </LinearLayout>
 

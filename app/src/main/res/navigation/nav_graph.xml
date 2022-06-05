@@ -8,18 +8,31 @@
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.firemaples.youtubeplayertest.ui.main.MainFragment"
-        android:label="fragment_main"
+        android:label="Youtube Player test"
         tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/action_mainFragment_to_youtubeSDKFragment"
             app:destination="@id/youtubeSDKFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_androidYoutubePlayerFragment"
+            app:destination="@id/androidYoutubePlayerFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/youtubeSDKFragment"
         android:name="com.firemaples.youtubeplayertest.ui.youtubesdk.YoutubeSDKFragment"
-        android:label="fragment_youtube_sdk"
+        android:label="Youtube Android SDK"
         tools:layout="@layout/fragment_youtube_sdk">
+        <argument
+            android:name="url"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/androidYoutubePlayerFragment"
+        android:name="com.firemaples.youtubeplayertest.ui.androidyoutubeplayer.AndroidYoutubePlayerFragment"
+        android:label="Android Youtube Player (3rdParty)"
+        tools:layout="@layout/fragment_android_youtube_player">
         <argument
             android:name="url"
             app:argType="string" />

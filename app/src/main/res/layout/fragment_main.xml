@@ -26,7 +26,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Use Youtube SDK" />
+        android:text="Use Youtube Android SDK" />
+
+    <Button
+        android:id="@+id/useAndroidYoutubePlayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Use Android Youtube Player (3rdParty, WebView)" />
 
     <Button
         android:id="@+id/useWebView"
