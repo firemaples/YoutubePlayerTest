@@ -15,6 +15,7 @@ import com.firemaples.youtubeplayertest.utils.Utils
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
 import com.google.android.youtube.player.YouTubePlayerSupportFragment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -57,6 +58,8 @@ class YoutubeSDKFragment : Fragment() {
     private var _binding: FragmentYoutubeSdkBinding? = null
     private val binding: FragmentYoutubeSdkBinding get() = _binding!!
     private val args: YoutubeSDKFragmentArgs by navArgs()
+
+    private var timerJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -110,6 +113,7 @@ class YoutubeSDKFragment : Fragment() {
 
     private fun YouTubePlayer.setupPlayer() {
         setManageAudioFocus(true)
+        setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS)
 
         binding.play.setOnClickListener {
             play()
@@ -129,6 +133,20 @@ class YoutubeSDKFragment : Fragment() {
 
         binding.seekToMiddle.setOnClickListener {
             seekToMillis(durationMillis / 2)
+        }
+
+        binding.seekToEnd.setOnClickListener {
+            seekToMillis(durationMillis - 2000)
+        }
+
+        timerJob?.cancel()
+        timerJob = lifecycleScope.launch(Dispatchers.Main) {
+            while (true){
+                if (currentTimeMillis >= durationMillis - 1000) {
+                    pause()
+                }
+                delay(200L)
+            }
         }
 
         setPlayerStateChangeListener(object : YouTubePlayer.PlayerStateChangeListener {

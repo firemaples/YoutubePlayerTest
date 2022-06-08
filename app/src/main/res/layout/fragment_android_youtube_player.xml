@@ -102,6 +102,21 @@
                 android:layout_height="4dp" />
 
             <Button
+                android:id="@+id/seekToEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seek to\nEnd" />
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <Button
                 android:id="@+id/setRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

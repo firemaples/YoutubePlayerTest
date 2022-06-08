@@ -98,6 +98,16 @@
                 android:layout_height="wrap_content"
                 android:text="Seek to\nmiddle" />
 
+            <Space
+                android:layout_width="4dp"
+                android:layout_height="4dp" />
+
+            <Button
+                android:id="@+id/seekToEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seek to\nEnd" />
+
         </LinearLayout>
 
         <TextView
