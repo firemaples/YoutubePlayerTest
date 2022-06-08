@@ -57,6 +57,15 @@ class MainFragment : Fragment() {
                     )
             }
         }
+
+        binding.useWebViewWithIframeAPI.setOnClickListener {
+            getUrl {
+                findNavController()
+                    .navigate(
+                        MainFragmentDirections.actionMainFragmentToWebViewWithIFrameAPIFragment(it)
+                    )
+            }
+        }
     }
 
     override fun onDestroyView() {
