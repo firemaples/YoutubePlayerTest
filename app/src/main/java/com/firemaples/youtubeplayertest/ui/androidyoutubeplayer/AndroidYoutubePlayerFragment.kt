@@ -65,7 +65,7 @@ class AndroidYoutubePlayerFragment : Fragment() {
     private fun YouTubePlayerView.setupPlayer() {
         lifecycle.addObserver(this)
 
-        inflateCustomPlayerUi(R.layout.view_player_control)
+//        inflateCustomPlayerUi(R.layout.view_player_control)
 
         enableAutomaticInitialization = false
 
@@ -118,7 +118,7 @@ class AndroidYoutubePlayerFragment : Fragment() {
             currentSec = second
 
             if (durationSec > 0 && currentSec >= durationSec - 1) {
-                youTubePlayer.pause()
+//                youTubePlayer.pause()
             }
         }
 
