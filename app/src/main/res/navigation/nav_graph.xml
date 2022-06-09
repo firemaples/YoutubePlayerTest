@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_mainFragment_to_webViewWithIFrameAPIFragment"
             app:destination="@id/webViewWithIFrameAPIFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_webViewMobileYoutubeFragment"
+            app:destination="@id/webViewMobileYoutubeFragment" />
     </fragment>
 
     <fragment
@@ -55,8 +58,17 @@
     <fragment
         android:id="@+id/webViewWithIFrameAPIFragment"
         android:name="com.firemaples.youtubeplayertest.ui.webviewiframeapi.WebViewWithIFrameAPIFragment"
-        android:label="fragment_web_view_with_iframe_api"
+        android:label="IFrame API"
         tools:layout="@layout/fragment_web_view_with_iframe_api">
+        <argument
+            android:name="url"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/webViewMobileYoutubeFragment"
+        android:name="com.firemaples.youtubeplayertest.ui.webviewmobileyoutube.WebViewMobileYoutubeFragment"
+        android:label="Mobile Youtube"
+        tools:layout="@layout/fragment_web_view_mobile_youtube">
         <argument
             android:name="url"
             app:argType="string" />

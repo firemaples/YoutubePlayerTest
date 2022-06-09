@@ -64,4 +64,6 @@ dependencies {
 
     // HaarigerHarald/android-youtubeExtractor
     implementation 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 }

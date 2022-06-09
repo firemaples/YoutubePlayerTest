@@ -66,6 +66,15 @@ class MainFragment : Fragment() {
                     )
             }
         }
+
+        binding.useWebViewWithMobileYoutube.setOnClickListener {
+            getUrl {
+                findNavController()
+                    .navigate(
+                        MainFragmentDirections.actionMainFragmentToWebViewMobileYoutubeFragment(it)
+                    )
+            }
+        }
     }
 
     override fun onDestroyView() {

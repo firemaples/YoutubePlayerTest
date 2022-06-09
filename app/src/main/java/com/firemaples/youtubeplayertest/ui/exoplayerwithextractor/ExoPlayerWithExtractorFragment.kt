@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -66,6 +67,7 @@ class ExoPlayerWithExtractorFragment : Fragment() {
         this.player = player
         lifecycleScope.launch {
             val (file, format) = extractVideo(args.url) ?: return@launch
+            ensureActive()
             Log.i(TAG, "extractVideo: $file")
             file ?: return@launch
 

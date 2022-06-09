@@ -53,4 +53,12 @@
         android:text="Use WebView with iframe API"
         android:textAllCaps="false" />
 
+    <Button
+        android:id="@+id/useWebViewWithMobileYoutube"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Use WebView with Mobile Youtube"
+        android:textAllCaps="false" />
+
 </LinearLayout>
