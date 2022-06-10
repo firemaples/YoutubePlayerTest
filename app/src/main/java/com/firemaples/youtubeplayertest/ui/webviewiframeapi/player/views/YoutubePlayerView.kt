@@ -17,10 +17,13 @@ class YoutubePlayerView @JvmOverloads constructor(
     }
 
     private val player: YoutubePlayerWebView = YoutubePlayerWebView(context)
+    val availablePlaybackRate: FloatArray
+        get() = player.availablePlaybackRates
 
     init {
         addView(player, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        addView(View.inflate(context, R.layout.view_player_control, null)) //The intercept the touch event
+        //The intercept the touch event
+        addView(View.inflate(context, R.layout.view_player_control, null))
     }
 
     fun init(initializedCallback: (YouTubePlayer) -> Unit) {

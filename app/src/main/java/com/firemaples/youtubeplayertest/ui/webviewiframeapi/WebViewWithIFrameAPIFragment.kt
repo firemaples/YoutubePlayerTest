@@ -1,6 +1,7 @@
 package com.firemaples.youtubeplayertest.ui.webviewiframeapi
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,12 +11,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.firemaples.youtubeplayertest.databinding.FragmentWebViewWithIframeApiBinding
-import com.firemaples.youtubeplayertest.ui.webviewiframeapi.player.YouTubePlayer
-import com.firemaples.youtubeplayertest.ui.webviewiframeapi.player.YouTubePlayerListener
+import com.firemaples.youtubeplayertest.ui.webviewiframeapi.player.*
 import com.firemaples.youtubeplayertest.utils.Utils
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils.TimeUtilities
 
 class WebViewWithIFrameAPIFragment : Fragment() {
+
+    companion object {
+        private val TAG = WebViewWithIFrameAPIFragment::class.java.simpleName
+    }
 
     private val viewModel: WebViewWithIFrameAPIViewModel by viewModels()
 
@@ -57,16 +61,65 @@ class WebViewWithIFrameAPIFragment : Fragment() {
 
     private val listener = object : YouTubePlayerListener {
         override fun onReady(youTubePlayer: YouTubePlayer) {
+            setEvent("onReady")
+            onPlayerReady(youTubePlayer)
+        }
+
+        override fun onStateChange(
+            youTubePlayer: YouTubePlayer,
+            state: PlayerState
+        ) {
+            binding.state.text = "onStateChange: $state"
+            Log.i(TAG, "onStateChange: $state")
+        }
+
+        override fun onPlaybackQualityChange(
+            youTubePlayer: YouTubePlayer,
+            playbackQuality: PlaybackQuality
+        ) {
+            setEvent("onPlaybackQualityChange: $playbackQuality")
+        }
+
+        override fun onPlaybackRateChange(
+            youTubePlayer: YouTubePlayer, playbackRate: Float
+        ) {
+            setEvent("onPlaybackRateChange: $playbackRate")
+        }
+
+        override fun onError(youTubePlayer: YouTubePlayer, error: PlayerError) {
+            setEvent("onError: $error")
         }
 
         override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
+//                setEvent("onCurrentSecond: $second")
             binding.currentTime.text = TimeUtilities.formatTime(second)
             currentSec = second
         }
 
         override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {
+            setEvent("onVideoDuration: $duration")
             binding.totalTime.text = TimeUtilities.formatTime(duration)
             durationSec = duration
+        }
+
+        override fun onVideoLoadedFraction(
+            youTubePlayer: YouTubePlayer,
+            loadedFraction: Float
+        ) {
+            setEvent("onVideoLoadedFraction: $loadedFraction")
+        }
+
+        override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {
+            setEvent("onVideoId: $videoId")
+        }
+
+        override fun onApiChange(youTubePlayer: YouTubePlayer) {
+            setEvent("onApiChange")
+        }
+
+        private fun setEvent(event: String) {
+            binding.event.text = "State: $event"
+            Log.i(TAG, "setEvent: $event")
         }
     }
 
@@ -99,18 +152,19 @@ class WebViewWithIFrameAPIFragment : Fragment() {
         }
 
         binding.setRate.setOnClickListener {
-            showPlaybackRateDialog {
+            showPlaybackRateDialog(binding.player.availablePlaybackRate) {
                 player.setPlaybackRate(it)
             }
         }
     }
 
-    private fun showPlaybackRateDialog(onSelected: (Float) -> Unit) {
-        val values: Array<Float> = arrayOf(0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f)
-
+    private fun showPlaybackRateDialog(
+        playbackRates: FloatArray,
+        onSelected: (Float) -> Unit
+    ) {
         AlertDialog.Builder(requireActivity())
-            .setItems(values.map { it.toString() }.toTypedArray()) { _, which ->
-                onSelected.invoke(values[which])
+            .setItems(playbackRates.map { it.toString() }.toTypedArray()) { _, which ->
+                onSelected.invoke(playbackRates[which])
             }
             .show()
     }

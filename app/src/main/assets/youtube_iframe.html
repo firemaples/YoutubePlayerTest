@@ -24,17 +24,7 @@
     </body>
 
     <script type="text/javascript">
-        // // 2. This code loads the IFrame Player API code asynchronously.
-        // var tag = document.createElement('script');
 
-        // tag.src = "https://www.youtube.com/iframe_api";
-        // var firstScriptTag = document.getElementsByTagName('script')[0];
-        // firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        // 3. This function creates an <iframe> (and YouTube player)
-        //    after the API code downloads.
-        // var YouTubePlayerBridge = window.YouTubePlayerBridge;
-        
         var UNSTARTED = "UNSTARTED";
         var ENDED = "ENDED";
         var PLAYING = "PLAYING";
@@ -47,11 +37,9 @@
 
         var timerId;
 
+        var rates;
+
         function onYouTubeIframeAPIReady() {
-
-            // console.log(`onYouTubeIframeAPIReady, bridge: ${YouTubePlayerBridge}`)
-
-            // videoId: 'U3DNz5asasA',
 
             new YT.Player('playerDOM', {
                 height: '100%',
@@ -60,7 +48,8 @@
                 events: {
                     onReady: function(event) { 
                         player = event.target;
-                        YouTubePlayerBridge.sendReady();
+                        const rates = player.getAvailablePlaybackRates();
+                        YouTubePlayerBridge.sendReady(JSON.stringify(rates));
                     },
     				onStateChange: function(event) { sendPlayerStateChange(event.data) },
     				onPlaybackQualityChange: function(event) { YouTubePlayerBridge.sendPlaybackQualityChange(event.data) },
@@ -79,46 +68,6 @@
                 }
             });
         }
-
-        // function injectCSS(){
-        //     var css = '.ytp-chrome-top.ytp-show-cards-title { visibility: hidden; }';
-
-        //     // var style = document.createElement('style');style.rel='stylesheet';
-        //     // style.type = 'text/css';
-        //     // style.innerHTML = window.atob(css);
-        //     // parent.appendChild(style);
-
-        //     // document.querySelector('#player').innerHTML += '<style>'+css+'</style>';
-
-        //     console.log(document.querySelector("#playerDOM").innerHTML);
-        // }
-
-        // // 4. The API will call this function when the video player is ready.
-        // function onPlayerReady(event) {
-        //     // event.target.playVideo();
-        //     console.log(event.target.getAvailablePlaybackRates());
-
-        //     player = event.target;
-
-        //     YouTubePlayerBridge.sendYouTubeIFrameAPIReady();
-
-        //     // console.log(player)
-
-        //     // player.loadVideoById('U3DNz5asasA', 0);
-
-        //     // injectCSS();
-        // }
-
-        // // 5. The API calls this function when the player's state changes.
-        // //    The function indicates that when playing a video (state=1),
-        // //    the player should play for six seconds and then stop.
-        // // var done = false;
-        // function onPlayerStateChange(event) {
-        //     // if (event.data == YT.PlayerState.PLAYING && !done) {
-        //     //     setTimeout(stopVideo, 6000);
-        //     //     done = true;
-        //     // }
-        // }
 
         function sendPlayerStateChange(playerState) {
             clearTimeout(timerId);
@@ -177,15 +126,14 @@
 
         // Kotlin to Web functions
         function loadVideo(videoId, startSeconds) {
-            console.log(`player: ${player}`)
             console.log(`loadVideo: ${videoId}`)
             player.loadVideoById(videoId, startSeconds);
-            // YouTubePlayerBridge.sendVideoId(videoId);
+            YouTubePlayerBridge.sendVideoId(videoId);
         }
 
         function cueVideo(videoId, startSeconds) {
             player.cueVideoById(videoId, startSeconds);
-            // YouTubePlayerBridge.sendVideoId(videoId);
+            YouTubePlayerBridge.sendVideoId(videoId);
         }
 
         function playVideo() {

@@ -3,8 +3,11 @@ package com.firemaples.youtubeplayertest.ui.webviewiframeapi.player
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
+import android.util.Log
 import android.webkit.JavascriptInterface
+import org.json.JSONArray
 
+@Suppress("unused")
 class YouTubePlayerBridge(private val callback: YouTubePlayerBridgeCallbacks) {
 
     companion object {
@@ -16,7 +19,7 @@ class YouTubePlayerBridge(private val callback: YouTubePlayerBridgeCallbacks) {
     interface YouTubePlayerBridgeCallbacks {
         fun getInstance(): YouTubePlayer
         fun getListeners(): Collection<YouTubePlayerListener>
-        fun onReady()
+        fun onReady(playbackRates: FloatArray)
     }
 
 //    @JavascriptInterface
@@ -26,9 +29,15 @@ class YouTubePlayerBridge(private val callback: YouTubePlayerBridgeCallbacks) {
 //    }
 
     @JavascriptInterface
-    fun sendReady() {
+    fun sendReady(availableRatesString: String) {
+        Log.i(TAG, "sendReady: $availableRatesString")
+
+        val availablePlaybackRates = JSONArray(availableRatesString).let {
+            (0 until it.length()).map { i -> it.getDouble(i).toFloat() }
+        }.toFloatArray()
+
         mainThreadHandler.post {
-            callback.onReady()
+            callback.onReady(availablePlaybackRates)
             for (listener in callback.getListeners())
                 listener.onReady(callback.getInstance())
         }
@@ -36,50 +45,50 @@ class YouTubePlayerBridge(private val callback: YouTubePlayerBridgeCallbacks) {
 
     @JavascriptInterface
     fun sendStateChange(state: String) {
-//        val playerState = parsePlayerState(state)
-//
-//        mainThreadHandler.post {
-//            for (listener in callback.getListeners())
-//                listener.onStateChange(callback.getInstance(), playerState)
-//        }
+        val playerState = PlayerState.parse(state)
+
+        mainThreadHandler.post {
+            for (listener in callback.getListeners())
+                listener.onStateChange(callback.getInstance(), playerState)
+        }
     }
 
     @JavascriptInterface
     fun sendPlaybackQualityChange(quality: String) {
-//        val playbackQuality = parsePlaybackQuality(quality)
-//
-//        mainThreadHandler.post {
-//            for (listener in callback.getListeners())
-//                listener.onPlaybackQualityChange(callback.getInstance(), playbackQuality)
-//        }
+        val playbackQuality = PlaybackQuality.parse(quality)
+
+        mainThreadHandler.post {
+            for (listener in callback.getListeners())
+                listener.onPlaybackQualityChange(callback.getInstance(), playbackQuality)
+        }
     }
 
     @JavascriptInterface
     fun sendPlaybackRateChange(rate: String) {
-//        val playbackRate = parsePlaybackRate(rate)
+        val rate = rate.toFloatOrNull() ?: return
 //
-//        mainThreadHandler.post {
-//            for (listener in callback.getListeners())
-//                listener.onPlaybackRateChange(callback.getInstance(), playbackRate)
-//        }
+        mainThreadHandler.post {
+            for (listener in callback.getListeners())
+                listener.onPlaybackRateChange(callback.getInstance(), rate)
+        }
     }
 
     @JavascriptInterface
     fun sendError(error: String) {
-//        val playerError = parsePlayerError(error)
-//
-//        mainThreadHandler.post {
-//            for (listener in callback.getListeners())
-//                listener.onError(callback.getInstance(), playerError)
-//        }
+        val playerError = PlayerError.parse(error)
+
+        mainThreadHandler.post {
+            for (listener in callback.getListeners())
+                listener.onError(callback.getInstance(), playerError)
+        }
     }
 
     @JavascriptInterface
     fun sendApiChange() {
-//        mainThreadHandler.post {
-//            for (listener in callback.getListeners())
-//                listener.onApiChange(callback.getInstance())
-//        }
+        mainThreadHandler.post {
+            for (listener in callback.getListeners())
+                listener.onApiChange(callback.getInstance())
+        }
     }
 
     @JavascriptInterface
@@ -125,17 +134,17 @@ class YouTubePlayerBridge(private val callback: YouTubePlayerBridgeCallbacks) {
             return
         }
 
-//        mainThreadHandler.post {
-//            for (listener in callback.getListeners())
-//                listener.onVideoLoadedFraction(callback.getInstance(), loadedFraction)
-//        }
+        mainThreadHandler.post {
+            for (listener in callback.getListeners())
+                listener.onVideoLoadedFraction(callback.getInstance(), loadedFraction)
+        }
     }
 
     @JavascriptInterface
     fun sendVideoId(videoId: String) {
-//        mainThreadHandler.post {
-//            for (listener in callback.getListeners())
-//                listener.onVideoId(callback.getInstance(), videoId)
-//        }
+        mainThreadHandler.post {
+            for (listener in callback.getListeners())
+                listener.onVideoId(callback.getInstance(), videoId)
+        }
     }
 }

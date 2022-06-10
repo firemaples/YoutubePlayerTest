@@ -27,6 +27,9 @@ class YoutubePlayerWebView @JvmOverloads constructor(
 
     private var initializedCallback: ((YouTubePlayer) -> Unit)? = null
 
+    var availablePlaybackRates: FloatArray = floatArrayOf()
+        private set
+
     @SuppressLint("SetJavaScriptEnabled")
     fun init(initializedCallback: (YouTubePlayer) -> Unit) {
         this.initializedCallback = initializedCallback
@@ -97,7 +100,8 @@ class YoutubePlayerWebView @JvmOverloads constructor(
 
     override fun getListeners(): Collection<YouTubePlayerListener> = youTubePlayerListeners.toList()
 
-    override fun onReady() {
+    override fun onReady(playbackRates: FloatArray) {
+        availablePlaybackRates = playbackRates
         initializedCallback?.invoke(this)
     }
 
