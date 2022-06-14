@@ -1,4 +1,4 @@
-package com.firemaples.youtubeplayertest.ui.webviewiframeapi.player.views
+package com.firemaples.iframeyoutubeplayer.player.views
 
 import android.content.Context
 import android.util.AttributeSet

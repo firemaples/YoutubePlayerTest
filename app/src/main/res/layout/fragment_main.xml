@@ -21,6 +21,28 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Current selection"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+    <Button
+        android:id="@+id/useWebViewWithIframeAPI"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Use WebView with iframe API"
+        android:textAllCaps="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Other selections"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
     <Button
         android:id="@+id/useYoutubeSDK"
         android:layout_width="wrap_content"
@@ -46,19 +68,12 @@
         android:textAllCaps="false" />
 
     <Button
-        android:id="@+id/useWebViewWithIframeAPI"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Use WebView with iframe API"
-        android:textAllCaps="false" />
-
-    <Button
         android:id="@+id/useWebViewWithMobileYoutube"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Use WebView with Mobile Youtube"
-        android:textAllCaps="false" />
+        android:textAllCaps="false"
+        android:visibility="gone" />
 
 </LinearLayout>

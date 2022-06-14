@@ -41,6 +41,10 @@
 
         function onYouTubeIframeAPIReady() {
 
+            console.log(`current URL: ${window.location}`);
+            var url = new URL(window.location);
+            var controls = url.searchParams.get('controls') ?? 1;
+
             new YT.Player('playerDOM', {
                 height: '100%',
                 width: '100%',
@@ -63,7 +67,7 @@
                     'modestbranding': 1,
                     'iv_load_policy': 3,
                     'fs': 0,
-                    'controls': 0,
+                    'controls': controls,
                     'cc_load_policy': 0
                 }
             });

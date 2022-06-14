@@ -1,4 +1,4 @@
-package com.firemaples.youtubeplayertest.ui.webviewiframeapi.player
+package com.firemaples.iframeyoutubeplayer.player
 
 /**
  * https://developers.google.com/youtube/iframe_api_reference#onStateChange

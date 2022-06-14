@@ -1,4 +1,4 @@
-package com.firemaples.youtubeplayertest.ui.webviewiframeapi.player
+package com.firemaples.iframeyoutubeplayer.player
 
 /**
  * Use this interface to control the playback of YouTube videos and to listen to their events.
@@ -37,6 +37,8 @@ interface YouTubePlayer {
 
 //    fun setPlaybackRate(playbackRate: PlayerConstants.PlaybackRate)
     fun setPlaybackRate(playbackRate: Float)
+
+    val availablePlaybackRates: FloatArray
 
     fun addListener(listener: YouTubePlayerListener): Boolean
     fun removeListener(listener: YouTubePlayerListener): Boolean

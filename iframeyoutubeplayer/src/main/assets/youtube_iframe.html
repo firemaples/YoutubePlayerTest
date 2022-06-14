@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<style type="text/css">
+    html,
+    body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #000000;
+        overflow: hidden;
+        position: fixed;
+    }
+</style>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+
+<body>
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="playerDOM"></div>
+</body>
+
+<script type="text/javascript">
+
+    var UNSTARTED = "UNSTARTED";
+    var ENDED = "ENDED";
+    var PLAYING = "PLAYING";
+    var PAUSED = "PAUSED";
+    var BUFFERING = "BUFFERING";
+    var CUED = "CUED";
+
+    var YouTubePlayerBridge = window.YouTubePlayerBridge;
+    var player;
+
+    var timerId;
+
+    var rates;
+
+    function onYouTubeIframeAPIReady() {
+
+        console.log(`current URL: ${window.location}`);
+        var url = new URL(window.location);
+        var controls = url.searchParams.get('controls') ?? 1;
+
+        new YT.Player('playerDOM', {
+            height: '100%',
+            width: '100%',
+
+            events: {
+                onReady: function (event) {
+                    player = event.target;
+                    const rates = player.getAvailablePlaybackRates();
+                    YouTubePlayerBridge.sendReady(JSON.stringify(rates));
+                },
+                onStateChange: function (event) { sendPlayerStateChange(event.data) },
+                onPlaybackQualityChange: function (event) { YouTubePlayerBridge.sendPlaybackQualityChange(event.data) },
+                onPlaybackRateChange: function (event) { YouTubePlayerBridge.sendPlaybackRateChange(event.data) },
+                onError: function (error) { YouTubePlayerBridge.sendError(error.data) },
+                onApiChange: function (event) { YouTubePlayerBridge.sendApiChange() }
+            },
+
+            playerVars: {
+                'playsinline': 1,
+                'modestbranding': 1,
+                'iv_load_policy': 3,
+                'fs': 0,
+                'controls': controls,
+                'cc_load_policy': 0
+            }
+        });
+    }
+
+    function sendPlayerStateChange(playerState) {
+        clearTimeout(timerId);
+
+        switch (playerState) {
+            case YT.PlayerState.UNSTARTED:
+                sendStateChange(UNSTARTED);
+                return;
+
+            case YT.PlayerState.ENDED:
+                sendStateChange(ENDED);
+                return;
+
+            case YT.PlayerState.PLAYING:
+                sendStateChange(PLAYING);
+
+                startSendCurrentTimeInterval();
+                sendVideoData(player);
+                return;
+
+            case YT.PlayerState.PAUSED:
+                sendStateChange(PAUSED);
+                return;
+
+            case YT.PlayerState.BUFFERING:
+                sendStateChange(BUFFERING);
+                return;
+
+            case YT.PlayerState.CUED:
+                sendStateChange(CUED);
+                return;
+        }
+
+        function sendVideoData(player) {
+            var videoDuration = player.getDuration();
+
+            YouTubePlayerBridge.sendVideoDuration(videoDuration);
+        }
+
+        function sendStateChange(newState) {
+            YouTubePlayerBridge.sendStateChange(newState)
+        }
+
+        function startSendCurrentTimeInterval() {
+            timerId = setInterval(function () {
+                YouTubePlayerBridge.sendVideoCurrentTime(player.getCurrentTime())
+                YouTubePlayerBridge.sendVideoLoadedFraction(player.getVideoLoadedFraction())
+            }, 100);
+        }
+    }
+
+
+    function stopVideo() {
+        player.stopVideo();
+    }
+
+    // Kotlin to Web functions
+    function loadVideo(videoId, startSeconds) {
+        console.log(`loadVideo: ${videoId}`)
+        player.loadVideoById(videoId, startSeconds);
+        YouTubePlayerBridge.sendVideoId(videoId);
+    }
+
+    function cueVideo(videoId, startSeconds) {
+        player.cueVideoById(videoId, startSeconds);
+        YouTubePlayerBridge.sendVideoId(videoId);
+    }
+
+    function playVideo() {
+        player.playVideo();
+    }
+
+    function pauseVideo() {
+        player.pauseVideo();
+    }
+
+    function stopVideo() {
+        player.stopVideo()
+    }
+
+    function seekTo(startSeconds) {
+        player.seekTo(startSeconds, true);
+    }
+
+    function mute() {
+        player.mute();
+    }
+
+    function unMute() {
+        player.unMute();
+    }
+
+    function setVolume(volumePercent) {
+        player.setVolume(volumePercent);
+    }
+
+    function setPlaybackRate(playbackRate) {
+        player.setPlaybackRate(playbackRate);
+    }
+</script>
+
+</html>

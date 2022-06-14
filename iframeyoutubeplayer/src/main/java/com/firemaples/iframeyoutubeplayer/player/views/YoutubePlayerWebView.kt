@@ -1,17 +1,18 @@
-package com.firemaples.youtubeplayertest.ui.webviewiframeapi.player.views
+package com.firemaples.iframeyoutubeplayer.player.views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
 import android.util.Log
 import android.webkit.*
-import com.firemaples.youtubeplayertest.ui.webviewiframeapi.ApiHub
-import com.firemaples.youtubeplayertest.ui.webviewiframeapi.player.YouTubePlayer
-import com.firemaples.youtubeplayertest.ui.webviewiframeapi.player.YouTubePlayerBridge
-import com.firemaples.youtubeplayertest.ui.webviewiframeapi.player.YouTubePlayerListener
+import com.firemaples.iframeyoutubeplayer.player.YouTubePlayer
+import com.firemaples.iframeyoutubeplayer.player.YouTubePlayerBridge
+import com.firemaples.iframeyoutubeplayer.player.YouTubePlayerListener
 import java.io.SequenceInputStream
+import java.net.URL
 import java.util.*
 
 class YoutubePlayerWebView @JvmOverloads constructor(
@@ -20,6 +21,8 @@ class YoutubePlayerWebView @JvmOverloads constructor(
 
     companion object {
         private val TAG = YoutubePlayerWebView::class.java.simpleName
+
+        private const val PARAM_CONTROLS = "controls"
     }
 
     private val youTubePlayerListeners = HashSet<YouTubePlayerListener>()
@@ -27,11 +30,19 @@ class YoutubePlayerWebView @JvmOverloads constructor(
 
     private var initializedCallback: ((YouTubePlayer) -> Unit)? = null
 
-    var availablePlaybackRates: FloatArray = floatArrayOf()
-        private set
+    private var _availablePlaybackRates: FloatArray = floatArrayOf()
+    override val availablePlaybackRates: FloatArray
+        get() = _availablePlaybackRates
+
+    private var hideExtraUI: Boolean = false
 
     @SuppressLint("SetJavaScriptEnabled")
-    fun init(initializedCallback: (YouTubePlayer) -> Unit) {
+    fun init(
+        enableControls: Boolean,
+        hideExtraUI: Boolean,
+        initializedCallback: (YouTubePlayer) -> Unit,
+    ) {
+        this.hideExtraUI = hideExtraUI
         this.initializedCallback = initializedCallback
 
         with(settings) {
@@ -45,7 +56,12 @@ class YoutubePlayerWebView @JvmOverloads constructor(
         webChromeClient = object : WebChromeClient() {}
         webViewClient = MyWebViewClient()
 
-        loadUrl("file:///android_asset/youtube_iframe.html")
+        val url = Uri.parse("file:///android_asset/youtube_iframe.html")
+            .buildUpon()
+            .appendQueryParameter(PARAM_CONTROLS, if (enableControls) "1" else "0")
+            .build()
+
+        loadUrl(url.toString())
     }
 
     override fun loadVideo(videoId: String, startSeconds: Float) {
@@ -101,7 +117,7 @@ class YoutubePlayerWebView @JvmOverloads constructor(
     override fun getListeners(): Collection<YouTubePlayerListener> = youTubePlayerListeners.toList()
 
     override fun onReady(playbackRates: FloatArray) {
-        availablePlaybackRates = playbackRates
+        _availablePlaybackRates = playbackRates
         initializedCallback?.invoke(this)
     }
 
@@ -111,7 +127,7 @@ class YoutubePlayerWebView @JvmOverloads constructor(
         super.destroy()
     }
 
-    private class MyWebViewClient : WebViewClient() {
+    private inner class MyWebViewClient : WebViewClient() {
         override fun shouldInterceptRequest(
             view: WebView?,
             request: WebResourceRequest?
@@ -119,25 +135,28 @@ class YoutubePlayerWebView @JvmOverloads constructor(
             val url = request?.url
             Log.i(TAG, "shouldInterceptRequest: $url")
 
-            if (url != null && url.toString().contains("www-player.css")) {
-                Log.i(TAG, "intercept url: $url")
+            if (hideExtraUI) {
+                if (url != null && url.toString().contains("www-player.css")) {
+                    Log.i(TAG, "intercept url: $url")
 
-                val cssIs = ApiHub.getAPI().getRaw(url.toString()).execute().body()?.byteStream()
-                val itemsToHide = arrayOf(
-                    ".ytp-chrome-top.ytp-show-cards-title", //Title bar
-                    ".ytp-pause-overlay.ytp-scroll-min", //Relative videos on pausing
-                    "a.ytp-watermark.yt-uix-sessionlink", //Logo
-                    ".html5-endscreen.ytp-player-content.videowall-endscreen.ytp-endscreen-paginate.ytp-show-tiles", //Relative videos on the end
-                    "button.ytp-button.ytp-endscreen-previous", //Previous button for relative videos on the end
-                    "button.ytp-button.ytp-endscreen-next", //Next button for relative videos on the end
-                ).joinToString(separator = ",")
-                val css = "$itemsToHide { visibility: hidden; }"
+                    val cssIs = URL(url.toString()).openStream()
+                    val itemsToHide = arrayOf(
+                        ".ytp-chrome-top.ytp-show-cards-title", //Title bar
+                        ".ytp-pause-overlay.ytp-scroll-min", //Relative videos on pausing
+                        ".ytp-gradient-top", //Top gradient on pausing
+                        "a.ytp-watermark.yt-uix-sessionlink", //Logo
+                        ".html5-endscreen.ytp-player-content.videowall-endscreen.ytp-endscreen-paginate.ytp-show-tiles", //Relative videos on the end
+                        "button.ytp-button.ytp-endscreen-previous", //Previous button for relative videos on the end
+                        "button.ytp-button.ytp-endscreen-next", //Next button for relative videos on the end
+                    ).joinToString(separator = ",")
+                    val css = "$itemsToHide { visibility: hidden; }"
 
-                val isArray = listOf(cssIs, css.byteInputStream())
+                    val isArray = listOf(cssIs, css.byteInputStream())
 
-                val sis = SequenceInputStream(Collections.enumeration(isArray))
+                    val sis = SequenceInputStream(Collections.enumeration(isArray))
 
-                return WebResourceResponse("text/css", "UTF-8", sis)
+                    return WebResourceResponse("text/css", "UTF-8", sis)
+                }
             }
 
             return super.shouldInterceptRequest(view, request)

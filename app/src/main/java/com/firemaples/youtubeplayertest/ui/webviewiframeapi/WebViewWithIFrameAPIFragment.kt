@@ -6,12 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
-import androidx.appcompat.app.AlertDialog
+import android.widget.Button
+import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
+import com.firemaples.iframeyoutubeplayer.player.*
 import com.firemaples.youtubeplayertest.databinding.FragmentWebViewWithIframeApiBinding
-import com.firemaples.youtubeplayertest.ui.webviewiframeapi.player.*
 import com.firemaples.youtubeplayertest.utils.Utils
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils.TimeUtilities
 
@@ -28,6 +30,9 @@ class WebViewWithIFrameAPIFragment : Fragment() {
 
     private val args: WebViewWithIFrameAPIFragmentArgs by navArgs()
 
+    private var availablePlaybackRate: FloatArray = floatArrayOf()
+    private var rateAdapter: RateAdapter? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,9 +47,22 @@ class WebViewWithIFrameAPIFragment : Fragment() {
 
         WebView.setWebContentsDebuggingEnabled(true)
 
+        binding.enableControls.setOnCheckedChangeListener { _, isChecked ->
+            init(enableControls = isChecked)
+        }
+
+        init(
+            enableControls = binding.enableControls.isChecked,
+        )
+    }
+
+    private fun init(enableControls: Boolean) {
         with(binding.player) {
             addListener(listener)
-            init {
+            init(
+                enableControls = enableControls,
+                hideExtraUI = true,
+            ) {
                 onPlayerReady(it)
             }
         }
@@ -69,7 +87,8 @@ class WebViewWithIFrameAPIFragment : Fragment() {
             youTubePlayer: YouTubePlayer,
             state: PlayerState
         ) {
-            binding.state.text = "onStateChange: $state"
+            binding.state.text = state.name
+//            binding.state.text = "onStateChange: $state"
             Log.i(TAG, "onStateChange: $state")
         }
 
@@ -151,21 +170,31 @@ class WebViewWithIFrameAPIFragment : Fragment() {
             player.seekTo(durationSec - 2f)
         }
 
-        binding.setRate.setOnClickListener {
-            showPlaybackRateDialog(binding.player.availablePlaybackRate) {
-                player.setPlaybackRate(it)
-            }
+        availablePlaybackRate = player.availablePlaybackRates
+
+        rateAdapter = RateAdapter(player)
+        with(binding.rateList) {
+            adapter = rateAdapter
         }
     }
 
-    private fun showPlaybackRateDialog(
-        playbackRates: FloatArray,
-        onSelected: (Float) -> Unit
-    ) {
-        AlertDialog.Builder(requireActivity())
-            .setItems(playbackRates.map { it.toString() }.toTypedArray()) { _, which ->
-                onSelected.invoke(playbackRates[which])
+    private inner class RateAdapter(private val player: YouTubePlayer) :
+        RecyclerView.Adapter<RateViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RateViewHolder =
+            RateViewHolder(AppCompatButton(requireActivity()))
+
+        override fun onBindViewHolder(holder: RateViewHolder, position: Int) {
+            val rate = availablePlaybackRate[position]
+            with(holder.button) {
+                text = "Rate $rate"
+                setOnClickListener {
+                    player.setPlaybackRate(rate)
+                }
             }
-            .show()
+        }
+
+        override fun getItemCount(): Int = availablePlaybackRate.size
     }
+
+    class RateViewHolder(val button: Button) : RecyclerView.ViewHolder(button)
 }

@@ -1,4 +1,4 @@
-package com.firemaples.youtubeplayertest.ui.webviewiframeapi.player
+package com.firemaples.iframeyoutubeplayer.player
 
 interface YouTubePlayerListener {
     /**
