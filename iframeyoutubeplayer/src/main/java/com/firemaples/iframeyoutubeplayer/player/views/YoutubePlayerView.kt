@@ -53,4 +53,13 @@ class YoutubePlayerView @JvmOverloads constructor(
 
     fun removeListener(listener: YouTubePlayerListener): Boolean =
         player.removeListener(listener)
+
+    fun addCustomView(view: View) {
+        if (view.parent != null) return
+        addView(view)
+    }
+
+    fun removeCustomView(view: View) {
+        removeView(view)
+    }
 }

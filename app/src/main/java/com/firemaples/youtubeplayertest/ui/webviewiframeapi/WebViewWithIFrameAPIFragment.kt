@@ -1,5 +1,6 @@
 package com.firemaples.youtubeplayertest.ui.webviewiframeapi
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,12 +9,16 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.Button
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.firemaples.iframeyoutubeplayer.player.*
 import com.firemaples.youtubeplayertest.databinding.FragmentWebViewWithIframeApiBinding
+import com.firemaples.youtubeplayertest.ui.webviewiframeapi.controller.YoutubeVideoController
 import com.firemaples.youtubeplayertest.utils.Utils
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils.TimeUtilities
 
@@ -32,6 +37,11 @@ class WebViewWithIFrameAPIFragment : Fragment() {
 
     private var availablePlaybackRate: FloatArray = floatArrayOf()
     private var rateAdapter: RateAdapter? = null
+    private var baseUIFlag = -1
+
+    private val controller: YoutubeVideoController by lazy {
+        YoutubeVideoController(requireActivity(), lifecycleScope)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,23 +58,42 @@ class WebViewWithIFrameAPIFragment : Fragment() {
         WebView.setWebContentsDebuggingEnabled(true)
 
         binding.enableControls.setOnCheckedChangeListener { _, isChecked ->
-            init(enableControls = isChecked)
-        }
-
-        init(
-            enableControls = binding.enableControls.isChecked,
-        )
-    }
-
-    private fun init(enableControls: Boolean) {
-        with(binding.player) {
-            addListener(listener)
-            init(
-                enableControls = enableControls,
-                hideExtraUI = true,
-            ) {
+            binding.player.init(enableControls = isChecked) {
+                enableCustomView(!isChecked)
                 onPlayerReady(it)
             }
+        }
+
+        binding.player.addListener(listener)
+        binding.player.init(
+            enableControls = binding.enableControls.isChecked,
+            hideExtraUI = true,
+        ) {
+            enableCustomView(!binding.enableControls.isChecked)
+            controller.bindPlayer(it)
+            onPlayerReady(it)
+        }
+    }
+
+    private fun enableCustomView(enable: Boolean) {
+        if (enable)
+            binding.player.addCustomView(controller.getController())
+        else binding.player.removeCustomView(controller.getController())
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val landscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        binding.portraitTools.isVisible = !landscape
+        binding.player.updateLayoutParams<ViewGroup.LayoutParams> {
+            height =
+                if (landscape) ViewGroup.LayoutParams.MATCH_PARENT
+                else ViewGroup.LayoutParams.WRAP_CONTENT
+        }
+        if (landscape) {
+            enterFullScreen()
+        } else {
+            exitFullScreen()
         }
     }
 
@@ -72,6 +101,24 @@ class WebViewWithIFrameAPIFragment : Fragment() {
         super.onDestroyView()
         binding.player.removeListener(listener)
         _binding = null
+    }
+
+    fun enterFullScreen() {
+        if (baseUIFlag == -1) {
+            baseUIFlag = requireActivity().window.decorView.systemUiVisibility
+        }
+        val flags = baseUIFlag or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+
+        requireActivity().window.decorView.systemUiVisibility = flags
+    }
+
+    fun exitFullScreen() {
+        if (baseUIFlag != -1) {
+            requireActivity().window.decorView.systemUiVisibility = baseUIFlag
+        }
     }
 
     private var currentSec: Float = 0f

@@ -7,4 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="color_white_alpha00">#00FFFFFF</color>
+
+    <color name="color_video_mask_dark">#9A000000</color>
+    <color name="color_transparent_white">@color/color_white_alpha00</color>
+    <color name="color_item_pressed">#4DECECF1</color>
 </resources>
