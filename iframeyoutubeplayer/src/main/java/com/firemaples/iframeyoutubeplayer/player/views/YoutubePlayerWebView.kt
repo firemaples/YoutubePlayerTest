@@ -139,7 +139,12 @@ class YoutubePlayerWebView @JvmOverloads constructor(
                 if (url != null && url.toString().contains("www-player.css")) {
                     Log.i(TAG, "intercept url: $url")
 
-                    val cssIs = URL(url.toString()).openStream()
+                    val conn = URL(url.toString()).openConnection()
+                    request.requestHeaders.forEach { (key, value) ->
+                        conn.setRequestProperty(key, value)
+                    }
+                    val cssIs = conn.getInputStream()
+
                     val itemsToHide = arrayOf(
                         ".ytp-chrome-top.ytp-show-cards-title", //Title bar
                         ".ytp-pause-overlay.ytp-scroll-min", //Relative videos on pausing
