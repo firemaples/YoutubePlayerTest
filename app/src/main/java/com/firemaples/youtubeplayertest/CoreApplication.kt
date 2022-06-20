@@ -3,7 +3,7 @@ package com.firemaples.youtubeplayertest
 import android.app.Application
 import android.util.Log
 import android.webkit.WebView
-import com.firemaples.youtubeplayertest.utils.Utils
+import com.firemaples.youtubeplayertest.utils.YoutubeUtils
 
 class CoreApplication : Application() {
 
@@ -15,8 +15,8 @@ class CoreApplication : Application() {
         super.onCreate()
         INSTANCE = this
 
-        Utils.userAgent = WebView(this).settings.userAgentString
+        YoutubeUtils.userAgent = WebView(this).settings.userAgentString
 
-        Log.i("CoreApplication", "userAgent: ${Utils.userAgent}")
+        Log.i("CoreApplication", "userAgent: ${YoutubeUtils.userAgent}")
     }
 }

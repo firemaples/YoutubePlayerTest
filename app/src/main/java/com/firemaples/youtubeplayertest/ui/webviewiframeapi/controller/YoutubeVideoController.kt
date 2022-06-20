@@ -22,6 +22,8 @@ import kotlinx.coroutines.launch
 class YoutubeVideoController(private val activity: Activity, private val scope: CoroutineScope) {
     companion object {
         private val TAG = YoutubeVideoController::class.java.simpleName
+
+        private const val controlTimeout = 4_000L
     }
 
     private val binding: ViewYoutubePlayerControlBinding =
@@ -173,7 +175,7 @@ class YoutubeVideoController(private val activity: Activity, private val scope: 
     private fun rescheduleUIHide() {
         hideJob?.cancel()
         hideJob = scope.launch {
-            delay(5_000)
+            delay(controlTimeout)
             hideableUIs.forEach { it.isVisible = false }
         }
     }

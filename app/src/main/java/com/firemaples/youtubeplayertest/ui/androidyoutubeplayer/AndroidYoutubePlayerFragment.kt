@@ -9,9 +9,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.firemaples.youtubeplayertest.R
 import com.firemaples.youtubeplayertest.databinding.FragmentAndroidYoutubePlayerBinding
-import com.firemaples.youtubeplayertest.utils.Utils
+import com.firemaples.youtubeplayertest.utils.YoutubeUtils
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
@@ -150,7 +149,7 @@ class AndroidYoutubePlayerFragment : Fragment() {
     }
 
     private fun onPlayerReady(player: YouTubePlayer) {
-        val videoId = Utils.extractYoutubeVideoId(args.url) ?: return
+        val videoId = YoutubeUtils.extractYoutubeVideoId(args.url) ?: return
         player.loadVideo(videoId, 0f)
 
         binding.play.setOnClickListener {

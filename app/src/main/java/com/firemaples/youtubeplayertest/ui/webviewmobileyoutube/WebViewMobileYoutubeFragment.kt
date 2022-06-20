@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.firemaples.youtubeplayertest.databinding.FragmentWebViewMobileYoutubeBinding
-import com.firemaples.youtubeplayertest.utils.Utils
+import com.firemaples.youtubeplayertest.utils.YoutubeUtils
 import java.util.*
 
 
@@ -39,7 +39,7 @@ class WebViewMobileYoutubeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val videoId = Utils.extractYoutubeVideoId(args.url) ?: return
+        val videoId = YoutubeUtils.extractYoutubeVideoId(args.url) ?: return
         load(videoId)
     }
 

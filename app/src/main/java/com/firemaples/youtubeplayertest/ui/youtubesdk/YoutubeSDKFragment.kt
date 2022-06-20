@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.firemaples.youtubeplayertest.R
 import com.firemaples.youtubeplayertest.databinding.FragmentYoutubeSdkBinding
-import com.firemaples.youtubeplayertest.utils.Utils
+import com.firemaples.youtubeplayertest.utils.YoutubeUtils
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
 import com.google.android.youtube.player.YouTubePlayerSupportFragment
@@ -19,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -104,7 +103,7 @@ class YoutubeSDKFragment : Fragment() {
     }
 
     private fun onInitialized(player: YouTubePlayer) {
-        val videoId = Utils.extractYoutubeVideoId(args.url)
+        val videoId = YoutubeUtils.extractYoutubeVideoId(args.url)
         Log.i(TAG, "onInitialized, url: ${args.url}, videoId: $videoId")
         if (videoId != null) {
             player.loadVideo(videoId)
@@ -160,7 +159,7 @@ class YoutubeSDKFragment : Fragment() {
 
             override fun onLoaded(videoId: String?) {
                 setState("onLoaded: $videoId")
-                binding.totalTime.text = Utils.toMmSs(durationMillis.toLong())
+                binding.totalTime.text = YoutubeUtils.toMmSs(durationMillis.toLong())
             }
 
             override fun onAdStarted() {
@@ -171,7 +170,7 @@ class YoutubeSDKFragment : Fragment() {
                 setState("onVideoStarted")
                 job = lifecycleScope.launch {
                     while (true) {
-                        binding.currentTime.text = Utils.toMmSs(currentTimeMillis.toLong())
+                        binding.currentTime.text = YoutubeUtils.toMmSs(currentTimeMillis.toLong())
                         delay(500L)
                     }
                 }

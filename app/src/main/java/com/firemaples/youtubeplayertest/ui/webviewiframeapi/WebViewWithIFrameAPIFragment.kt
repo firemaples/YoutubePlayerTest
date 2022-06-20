@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.firemaples.iframeyoutubeplayer.player.*
 import com.firemaples.youtubeplayertest.databinding.FragmentWebViewWithIframeApiBinding
 import com.firemaples.youtubeplayertest.ui.webviewiframeapi.controller.YoutubeVideoController
-import com.firemaples.youtubeplayertest.utils.Utils
+import com.firemaples.youtubeplayertest.utils.YoutubeUtils
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils.TimeUtilities
 
 class WebViewWithIFrameAPIFragment : Fragment() {
@@ -190,7 +190,7 @@ class WebViewWithIFrameAPIFragment : Fragment() {
     }
 
     private fun onPlayerReady(player: YouTubePlayer) {
-        val videoId = Utils.extractYoutubeVideoId(args.url) ?: return
+        val videoId = YoutubeUtils.extractYoutubeVideoId(args.url) ?: return
         player.loadVideo(videoId, 0f)
 
         binding.play.setOnClickListener {

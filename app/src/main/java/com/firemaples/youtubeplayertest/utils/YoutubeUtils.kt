@@ -2,7 +2,7 @@ package com.firemaples.youtubeplayertest.utils
 
 import kotlin.time.Duration.Companion.milliseconds
 
-object Utils {
+object YoutubeUtils {
     private val videoIdReg =
         "^((?:https?:)?//)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be|youtube-nocookie.com))(/(?:[\\w\\-]+\\?v=|feature=|watch\\?|e/|embed/|v/)?)([\\w\\-]+)(\\S+)?\$"
             .toRegex()

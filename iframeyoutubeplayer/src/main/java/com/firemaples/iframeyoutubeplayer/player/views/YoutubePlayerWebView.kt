@@ -153,8 +153,9 @@ class YoutubePlayerWebView @JvmOverloads constructor(
                         ".html5-endscreen.ytp-player-content.videowall-endscreen.ytp-endscreen-paginate.ytp-show-tiles", //Relative videos on the end
                         "button.ytp-button.ytp-endscreen-previous", //Previous button for relative videos on the end
                         "button.ytp-button.ytp-endscreen-next", //Next button for relative videos on the end
+                        ".ytp-ce-element", //Suggested videos by author
                     ).joinToString(separator = ",")
-                    val css = "$itemsToHide { visibility: hidden; }"
+                    val css = "$itemsToHide { visibility: hidden !important; }"
 
                     val isArray = listOf(cssIs, css.byteInputStream())
 

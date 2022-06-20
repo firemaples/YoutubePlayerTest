@@ -1,17 +1,14 @@
 package com.firemaples.youtubeplayertest.ui.main
 
-import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.URLUtil
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.firemaples.youtubeplayertest.databinding.FragmentMainBinding
-import java.net.URL
 
 class MainFragment : Fragment() {
 
@@ -32,7 +29,8 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.youtubeURL.editText?.setText("https://www.youtube.com/watch?v=U3DNz5asasA")
+//        binding.youtubeURL.editText?.setText("https://www.youtube.com/watch?v=U3DNz5asasA")
+        binding.youtubeURL.editText?.setText("https://www.youtube.com/watch?v=O3cUQrylUoo")
 
         binding.useYoutubeSDK.setOnClickListener {
             getUrl {
