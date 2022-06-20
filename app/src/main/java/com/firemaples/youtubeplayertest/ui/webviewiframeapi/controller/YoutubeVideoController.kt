@@ -32,6 +32,7 @@ class YoutubeVideoController(private val activity: Activity, private val scope: 
         binding.fullscreen,
         binding.rate,
         binding.seekBar,
+        binding.controllerToolsBackground,
     )
 
     private var player: YouTubePlayer? = null
