@@ -55,6 +55,7 @@
                 onReady: function (event) {
                     player = event.target;
                     const rates = player.getAvailablePlaybackRates();
+                    console.log(player.getVideoData());
                     // YouTubePlayerBridge.sendReady(JSON.stringify(rates));
                 },
                 onStateChange: function (event) { sendPlayerStateChange(event.data) },
