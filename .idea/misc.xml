@@ -8,6 +8,8 @@
         <entry key="app/src/main/res/drawable/item_circle_foreground.xml" value="0.1435" />
         <entry key="app/src/main/res/drawable/video_mask_bottom.xml" value="0.1435" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.26766304347826086" />
+        <entry key="app/src/main/res/layout/activity_youtube_video_selector.xml" value="0.3188405797101449" />
+        <entry key="app/src/main/res/layout/content_youtube_video_selector.xml" value="0.3188405797101449" />
         <entry key="app/src/main/res/layout/fragment_android_youtube_player.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_exo_player_with_extractor.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/layout/fragment_main.xml" value="0.26766304347826086" />
@@ -15,6 +17,7 @@
         <entry key="app/src/main/res/layout/fragment_web_view_mobile_youtube.xml" value="0.1796875" />
         <entry key="app/src/main/res/layout/fragment_web_view_with_iframe_api.xml" value="0.3188405797101449" />
         <entry key="app/src/main/res/layout/fragment_youtube_sdk.xml" value="0.26766304347826086" />
+        <entry key="app/src/main/res/layout/fragment_youtube_video_selector.xml" value="0.3188405797101449" />
         <entry key="app/src/main/res/layout/item_youtube_player_rate.xml" value="0.3188405797101449" />
         <entry key="app/src/main/res/layout/view_player_control.xml" value="0.3188405797101449" />
         <entry key="app/src/main/res/layout/view_youtube_player_control.xml" value="0.3188405797101449" />

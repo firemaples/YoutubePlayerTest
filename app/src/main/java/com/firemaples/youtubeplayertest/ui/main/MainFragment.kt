@@ -73,6 +73,10 @@ class MainFragment : Fragment() {
                     )
             }
         }
+
+        binding.youtubeVideoSelector.setOnClickListener {
+            findNavController().navigate(MainFragmentDirections.actionMainFragmentToYoutubeVideoSelectorFragment())
+        }
     }
 
     override fun onDestroyView() {
