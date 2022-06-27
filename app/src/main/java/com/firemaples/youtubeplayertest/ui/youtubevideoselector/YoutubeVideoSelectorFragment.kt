@@ -19,11 +19,11 @@ class YoutubeVideoSelectorFragment : Fragment() {
 
     private val getVideoIdResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val videoUrl =
-                YoutubeVideoSelectorActivity.getVideoURL(it.data)
+            val videoInfo =
+                YoutubeVideoSelectorActivity.getVideoInfo(it.data)
                     ?: return@registerForActivityResult
             val action = YoutubeVideoSelectorFragmentDirections
-                .actionYoutubeVideoSelectorFragmentToWebViewWithIFrameAPIFragment(videoUrl)
+                .actionYoutubeVideoSelectorFragmentToWebViewWithIFrameAPIFragment(videoInfo.url)
             findNavController().navigate(action)
         }
 

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">YoutubePlayerTest</string>
+    <string name="youtube_data_api_key"></string>
 </resources>
