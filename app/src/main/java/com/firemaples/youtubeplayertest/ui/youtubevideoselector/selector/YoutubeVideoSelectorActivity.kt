@@ -59,10 +59,18 @@ class YoutubeVideoSelectorActivity : AppCompatActivity() {
             val targetUrl = view?.url ?: return
             val videoId = YoutubeUtils.extractYoutubeVideoId(targetUrl)
             Log.i(TAG, "doUpdateVisitedHistory(), url: $targetUrl, videoId: $videoId")
+//            test(targetUrl)
 
             if (videoId != null) {
                 onVideoSelected.invoke(videoId, targetUrl)
             }
+        }
+
+        private fun test(url: String) {
+            val reg =
+                "^.*(?:(?:youtu\\\\.be\\\\|v\\\\|vi\\\\|u\\\\\\\\w\\\\|embed\\\\|shorts\\\\)|(?:(?:watch)?\\\\?v(?:i)?=|\\\\&v(?:i)?=))([^#\\\\&\\\\?]*).*"
+            val result = reg.toRegex().find(url) ?: return
+            Log.i(TAG, "test, url: $url, id: ${result.groupValues.getOrNull(1)}")
         }
     }
 }
