@@ -5,16 +5,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.URLUtil
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.firemaples.youtubeplayertest.databinding.FragmentMainBinding
+import com.firemaples.youtubeplayertest.ui.youtubevideoselector.selector.YoutubeVideoSelectorActivity
 
 class MainFragment : Fragment() {
 
     private val viewModel: MainViewModel by viewModels()
     private var _binding: FragmentMainBinding? = null
     private val binding: FragmentMainBinding get() = _binding!!
+
+    private val getVideoIdResultForExoPlayerWithInternalAPI =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val videoInfo =
+                YoutubeVideoSelectorActivity.getVideoInfo(it.data)
+                    ?: return@registerForActivityResult
+            val action = MainFragmentDirections
+                .actionMainFragmentToExoPlayerWithInternalAPIFragment(videoInfo.url)
+            findNavController().navigate(action)
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,6 +88,16 @@ class MainFragment : Fragment() {
 
         binding.youtubeVideoSelector.setOnClickListener {
             findNavController().navigate(MainFragmentDirections.actionMainFragmentToYoutubeVideoSelectorFragment())
+        }
+
+        binding.useExoPlayerWithInternalAPI.setOnClickListener {
+            getVideoIdResultForExoPlayerWithInternalAPI
+                .launch(YoutubeVideoSelectorActivity.getIntent(requireActivity()))
+//            getUrl {
+//                findNavController().navigate(
+//                    MainFragmentDirections.actionMainFragmentToExoPlayerWithInternalAPIFragment(it)
+//                )
+//            }
         }
     }
 

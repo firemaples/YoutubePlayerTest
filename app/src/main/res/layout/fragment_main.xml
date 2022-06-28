@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Current selection"
+        android:text="iframe APIs"
         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
     <Button
@@ -42,6 +42,21 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Youtube Video Selector"
+        android:textAllCaps="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Internal APIs"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+    <Button
+        android:id="@+id/useExoPlayerWithInternalAPI"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Use ExoPlayer with internal API"
         android:textAllCaps="false" />
 
     <TextView

@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_mainFragment_to_youtubeVideoSelectorFragment"
             app:destination="@id/youtubeVideoSelectorFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_exoPlayerWithInternalAPIFragment"
+            app:destination="@id/exoPlayerWithInternalAPIFragment" />
     </fragment>
 
     <fragment
@@ -80,9 +83,18 @@
         android:id="@+id/youtubeVideoSelectorFragment"
         android:name="com.firemaples.youtubeplayertest.ui.youtubevideoselector.YoutubeVideoSelectorFragment"
         android:label="Youtube Video Selector"
-        tools:layout="@layout/fragment_youtube_video_selector" >
+        tools:layout="@layout/fragment_youtube_video_selector">
         <action
             android:id="@+id/action_youtubeVideoSelectorFragment_to_webViewWithIFrameAPIFragment"
             app:destination="@id/webViewWithIFrameAPIFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/exoPlayerWithInternalAPIFragment"
+        android:name="com.firemaples.youtubeplayertest.ui.exoplayerwithinternalapi.ExoPlayerWithInternalAPIFragment"
+        android:label="ExoPlayer with internal APIs"
+        tools:layout="@layout/fragment_exo_player_with_internal_api">
+        <argument
+            android:name="url"
+            app:argType="string" />
     </fragment>
 </navigation>
