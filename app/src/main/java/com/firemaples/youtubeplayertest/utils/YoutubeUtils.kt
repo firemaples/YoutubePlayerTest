@@ -9,7 +9,7 @@ object YoutubeUtils {
 //            .toRegex()
     // https://stackoverflow.com/a/27728417/2906153
     private val videoIdReg =
-    "^.*(?:(?:youtu\\\\.be\\\\|v\\\\|vi\\\\|u\\\\\\\\w\\\\|embed\\\\|shorts\\\\)|(?:(?:watch)?\\\\?v(?:i)?=|\\\\&v(?:i)?=))([^#\\\\&\\\\?]*).*"
+        "^.*(?:(?:youtu\\.be\\/|v\\/|vi\\/|u\\/\\w\\/|embed\\/|shorts\\/)|(?:(?:watch)?\\?v(?:i)?=|\\&v(?:i)?=))([^#\\&\\?]*).*"
             .toRegex()
 
     fun extractYoutubeVideoId(url: String): String? {

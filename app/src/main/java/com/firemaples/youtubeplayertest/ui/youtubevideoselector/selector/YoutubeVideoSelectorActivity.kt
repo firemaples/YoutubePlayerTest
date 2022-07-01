@@ -62,6 +62,17 @@ class YoutubeVideoSelectorActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        with(binding.youtubeVideoSelector) {
+            if (canGoBack()) {
+                goBack()
+                return
+            }
+        }
+
+        super.onBackPressed()
+    }
+
     private fun onVideoSelected(videoId: String, url: String) {
         lifecycleScope.launch {
             val videoInfo = withContext(Dispatchers.IO) { retrieveVideoInfo(videoId, url) }
@@ -79,10 +90,11 @@ class YoutubeVideoSelectorActivity : AppCompatActivity() {
 
     private fun retrieveVideoInfo(videoId: String, url: String): YoutubeVideoInfo {
         val fields = arrayOf(
-            "snippet", // For 'title' or 'localized.title'
+            "snippet", // For 'title' or 'localized.title' and 'liveBroadcastContent'
             "contentDetails", // For 'regionRestriction.allowed' and 'regionRestriction.blocked'
             "status", // For 'embeddable'
             "player", // For 'embedHtml'
+            "liveStreamingDetails", // For 'liveStreamingDetails' itself
         ).joinToString(separator = ",")
 
         val uri = Uri.parse("https://www.googleapis.com/youtube/v3/videos")
@@ -100,16 +112,22 @@ class YoutubeVideoSelectorActivity : AppCompatActivity() {
         val item = root.getJSONArray("items").getJSONObject(0)
         val snippetObj = item.getJSONObject("snippet")
         val title = snippetObj.getString("title")
+        val liveBroadcastContent =
+            if (snippetObj.has("liveBroadcastContent"))
+                LiveBroadcastContent.fromValue(snippetObj.getString("liveBroadcastContent"))
+            else LiveBroadcastContent.DEFAULT
         val statusObj = item.getJSONObject("status")
         val embeddable = statusObj.getBoolean("embeddable")
-
         val embeddable1 = retrieveVideoIsEmbeddable(videoId)
+        val isLiveStreaming = item.has("liveStreamingDetails")
 
         return YoutubeVideoInfo(
             videoId = videoId,
             url = url,
             title = title,
+            liveBroadcastContent = liveBroadcastContent,
             embeddable = embeddable1,
+            isLiveStreaming = isLiveStreaming,
         )
     }
 
@@ -158,9 +176,25 @@ class YoutubeVideoSelectorActivity : AppCompatActivity() {
         val videoId: String,
         val url: String,
         val title: String,
+        val liveBroadcastContent: LiveBroadcastContent,
         val embeddable: Boolean,
+        val isLiveStreaming: Boolean,
     ) : Serializable {
         fun toInfoString(): String =
-            "videoId: $videoId\ntitle: $title\nembeddable: $embeddable"
+            "videoId: $videoId\ntitle: $title\nliveBroadcastContent: $liveBroadcastContent\nembeddable: $embeddable\nisLiveStreaming: $isLiveStreaming"
+    }
+
+    enum class LiveBroadcastContent(val value: String) {
+        NONE("none"),
+        LIVE("live"),
+        UPCOMING("upcoming"),
+        UNKNOWN("");
+
+        companion object {
+            val DEFAULT = UNKNOWN
+
+            fun fromValue(value: String?): LiveBroadcastContent =
+                values().firstOrNull { it.value == value } ?: DEFAULT
+        }
     }
 }

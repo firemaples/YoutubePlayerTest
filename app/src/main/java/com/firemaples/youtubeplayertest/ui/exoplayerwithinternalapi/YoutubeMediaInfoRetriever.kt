@@ -80,42 +80,62 @@ object YoutubeMediaInfoRetriever {
 
         Log.i(TAG, "response raw: $response")
 
-        val root = JSONObject(response)
-        val streamingData = root.getJSONObject("streamingData")
-        val formats = streamingData.getJSONArray("formats")
-        val mediaList = (0 until formats.length()).map {
-            Media.fromJSONObject(formats.getJSONObject(it), isAdaptive = false)
-        }.toMutableList()
-        val adaptiveFormats = streamingData.getJSONArray("adaptiveFormats")
-        mediaList.addAll((0 until adaptiveFormats.length()).map {
-            Media.fromJSONObject(adaptiveFormats.getJSONObject(it), isAdaptive = true)
-        })
-        val expired = streamingData.getInt("expiresInSeconds") * 1000 + System.currentTimeMillis()
+        try {
+            val root = JSONObject(response)
+            val streamingData = root.getJSONObject("streamingData")
+            val mediaList = mutableListOf<Media>()
+            if (streamingData.has("formats")) {
+                val formats = streamingData.getJSONArray("formats")
+                mediaList.addAll(
+                    (0 until formats.length()).map {
+                        Media.fromJSONObject(formats.getJSONObject(it), isAdaptive = false)
+                    }
+                )
+            }
+            if (streamingData.has("adaptiveFormats")) {
+                val adaptiveFormats = streamingData.getJSONArray("adaptiveFormats")
+                mediaList.addAll((0 until adaptiveFormats.length()).map {
+                    Media.fromJSONObject(adaptiveFormats.getJSONObject(it), isAdaptive = true)
+                })
+            }
+            val expired =
+                streamingData.getInt("expiresInSeconds") * 1000 + System.currentTimeMillis()
 
-        val videoDetails = root.getJSONObject("videoDetails")
-        val title = videoDetails.getString("title")
-        val thumbnails = videoDetails.getJSONObject("thumbnail").getJSONArray("thumbnails")
-        val thumbnailList =
-            (0 until thumbnails.length())
-                .map { Thumbnail.fromJSONObject(thumbnails.getJSONObject(it)) }
-                .toList()
+            val videoDetails = root.getJSONObject("videoDetails")
+            val title = videoDetails.getString("title")
+            val isLiveContent = videoDetails.getBoolean("isLiveContent")
+            val thumbnails = videoDetails.getJSONObject("thumbnail").getJSONArray("thumbnails")
+            val thumbnailList =
+                (0 until thumbnails.length())
+                    .map { Thumbnail.fromJSONObject(thumbnails.getJSONObject(it)) }
+                    .toList()
 
-        return MediaInfo(
-            videoId = videoId,
-            title = title,
-            expiredTime = expired,
-            thumbnails = thumbnailList,
-            mediaList = mediaList,
-        )
+            val metadata = YoutubeMetadataParser.parseMetadata(root)
+
+            return MediaInfo(
+                videoId = videoId,
+                title = title,
+                isLiveContent = isLiveContent,
+                expiredTime = expired,
+                thumbnails = thumbnailList,
+                mediaList = mediaList,
+                metadata = metadata,
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "", e)
+            return null
+        }
     }
 
 
     data class MediaInfo(
         val videoId: String,
         val title: String,
+        val isLiveContent: Boolean,
         val expiredTime: Long,
         val thumbnails: List<Thumbnail>,
         val mediaList: List<Media>,
+        val metadata: YoutubeMetadataParser.YoutubeMetadata?,
     )
 
     data class Thumbnail(
@@ -136,7 +156,6 @@ object YoutubeMediaInfoRetriever {
     data class Media(
         val isAdaptive: Boolean,
         val itag: Int,
-        val url: String,
         val mimeType: String,
         val width: Int?,
         val height: Int?,
@@ -146,6 +165,7 @@ object YoutubeMediaInfoRetriever {
         val audioSampleRate: Int?,
 //        val isDashContainer: Boolean,
 //        val isHlsContent: Boolean,
+        val url: String,
     ) {
         companion object {
             fun fromJSONObject(item: JSONObject, isAdaptive: Boolean): Media =
