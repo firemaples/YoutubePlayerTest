@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.SimpleDateFormat
 import kotlin.math.abs
 
 class ExoPlayerWithInternalAPIFragment : Fragment() {
@@ -127,7 +129,7 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
                 } else null
             }
             Log.i(TAG, "onTrackChanged: $selectedTracks")
-            binding.selectedTracks.text = selectedTracks.joinToString(separator = "\n")
+            binding.selectedTracks.text = selectedTracks.joinToString(separator = "\n") { "- $it" }
 
             C.SELECTION_REASON_ADAPTIVE
         }
@@ -174,12 +176,14 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
         val videoId = YoutubeUtils.extractYoutubeVideoId(args.url) ?: return
         lifecycleScope.launch(Dispatchers.Main) {
             var title = ""
+            var expiredAt: Long? = null
             when (sourceType) {
                 SourceType.DashManifest -> {
                     val metadata = YoutubeDashManifestCreator.retrieve(requireContext(), videoId)
                     Log.i(TAG, "DashManifest: $metadata")
                     if (metadata != null) {
                         title = metadata.title
+                        expiredAt = metadata.expiredAt
                         playWithDashManifest(metadata)
                     }
                 }
@@ -189,6 +193,7 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
                     Log.i(TAG, "HlsManifest: $hlsMediaInfo")
                     if (hlsMediaInfo != null) {
                         title = hlsMediaInfo.title
+                        expiredAt = hlsMediaInfo.expiredTime
                         playWithHlsManifest(hlsMediaInfo)
                     }
                 }
@@ -198,12 +203,21 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
                     Log.i(TAG, "MediaSources: $mediaInfo")
                     if (mediaInfo != null) {
                         title = mediaInfo.title
+                        expiredAt = mediaInfo.expiredTime
                         playWithMediaSource(mediaInfo)
                     }
                 }
             }
 
             binding.title.text = "${sourceType.name}: $title"
+
+            if (expiredAt != null) {
+                val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                binding.expiredAt.text = formatter.format(expiredAt * 1000)
+                binding.expiredAt.isVisible = true
+            } else {
+                binding.expiredAt.isVisible = false
+            }
         }
     }
 
