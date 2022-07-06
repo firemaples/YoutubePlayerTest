@@ -1,5 +1,6 @@
 package com.firemaples.youtubeplayertest.ui.exoplayerwithinternalapi
 
+import com.firemaples.youtubeplayertest.utils.YoutubeUtils
 import org.json.JSONObject
 
 
@@ -82,9 +83,7 @@ object YoutubeMetadataParser {
                 sb.append("</Representation>")
 
                 if (expiredAt == null) {
-                    REG_EXPIRED.find(format.url)?.also {
-                        expiredAt = it.groupValues.getOrNull(1)?.toLongOrNull()
-                    }
+                    expiredAt = YoutubeUtils.findExpireTime(format.url)
                 }
             }
 

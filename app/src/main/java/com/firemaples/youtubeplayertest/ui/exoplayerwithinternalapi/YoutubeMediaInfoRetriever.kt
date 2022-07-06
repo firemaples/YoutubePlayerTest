@@ -3,6 +3,7 @@ package com.firemaples.youtubeplayertest.ui.exoplayerwithinternalapi
 import android.content.Context
 import android.util.Log
 import android.webkit.WebView
+import com.firemaples.youtubeplayertest.utils.YoutubeUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
@@ -22,29 +23,12 @@ object YoutubeMediaInfoRetriever {
                 WebView(appContext).settings.userAgentString
             }
 
-            val apiKey = withContext(Dispatchers.IO) { retrieveAPIKey(videoId, userAgent) }
-                ?: return@coroutineScope null
+            val apiKey = withContext(Dispatchers.IO) {
+                YoutubeUtils.retrieveInnerTubeAPIKey(videoId, userAgent)
+            } ?: return@coroutineScope null
+
             withContext(Dispatchers.IO) { retrieveMediaInfo(videoId, apiKey) }
         }
-    }
-
-    private fun retrieveAPIKey(videoId: String, userAgent: String): String? {
-        try {
-            val conn = URL("https://www.youtube.com/watch?v=$videoId").openConnection()
-            conn.setRequestProperty("User-Agent", userAgent)
-            val html = conn.getInputStream().use { it.bufferedReader().readText() }
-
-            val reg =
-                "\"INNERTUBE_API_KEY\":\"(\\w+)\",\"INNERTUBE_API_VERSION\":\"(\\w+)\"".toRegex()
-            val result = reg.find(html)
-            if (result != null) {
-                return result.groupValues.getOrNull(1)
-            }
-        } catch (e: IOException) {
-            Log.e(TAG, "", e)
-        }
-
-        return null
     }
 
     private fun retrieveMediaInfo(videoId: String, apiKey: String): MediaInfo? {
@@ -84,22 +68,32 @@ object YoutubeMediaInfoRetriever {
             val root = JSONObject(response)
             val streamingData = root.getJSONObject("streamingData")
             val mediaList = mutableListOf<Media>()
+            var expiredTime: Long? = null
+
             if (streamingData.has("formats")) {
                 val formats = streamingData.getJSONArray("formats")
                 mediaList.addAll(
                     (0 until formats.length()).map {
-                        Media.fromJSONObject(formats.getJSONObject(it), isAdaptive = false)
+                        val item = formats.getJSONObject(it)
+                        if (expiredTime == null) {
+                            expiredTime = YoutubeUtils.findExpireTime(item.getString("url"))
+                        }
+                        Media.fromJSONObject(item, isAdaptive = false)
                     }
                 )
             }
             if (streamingData.has("adaptiveFormats")) {
                 val adaptiveFormats = streamingData.getJSONArray("adaptiveFormats")
                 mediaList.addAll((0 until adaptiveFormats.length()).map {
-                    Media.fromJSONObject(adaptiveFormats.getJSONObject(it), isAdaptive = true)
+                    val item = adaptiveFormats.getJSONObject(it)
+                    if (expiredTime == null) {
+                        expiredTime = YoutubeUtils.findExpireTime(item.getString("url"))
+                    }
+                    Media.fromJSONObject(item, isAdaptive = true)
                 })
             }
-            val expired =
-                streamingData.getInt("expiresInSeconds") * 1000 + System.currentTimeMillis()
+//            val expired =
+//                streamingData.getInt("expiresInSeconds") * 1000 + System.currentTimeMillis()
 
             val videoDetails = root.getJSONObject("videoDetails")
             val title = videoDetails.getString("title")
@@ -116,7 +110,7 @@ object YoutubeMediaInfoRetriever {
                 videoId = videoId,
                 title = title,
                 isLiveContent = isLiveContent,
-                expiredTime = expired,
+                expiredTime = expiredTime,
                 thumbnails = thumbnailList,
                 mediaList = mediaList,
                 metadata = metadata,
@@ -132,7 +126,7 @@ object YoutubeMediaInfoRetriever {
         val videoId: String,
         val title: String,
         val isLiveContent: Boolean,
-        val expiredTime: Long,
+        val expiredTime: Long?,
         val thumbnails: List<Thumbnail>,
         val mediaList: List<Media>,
         val metadata: YoutubeMetadataParser.YoutubeMetadata?,
