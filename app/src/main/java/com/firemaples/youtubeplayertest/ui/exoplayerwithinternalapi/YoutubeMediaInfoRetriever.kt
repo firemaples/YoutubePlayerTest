@@ -14,6 +14,7 @@ import javax.net.ssl.HttpsURLConnection
 
 object YoutubeMediaInfoRetriever {
     private val TAG = YoutubeMediaInfoRetriever::class.java.simpleName
+    private const val USER_AGENT = "com.google.android.youtube/16.30.34 (Linux; U; Android 9; en_US)"
 
     suspend fun retrieve(context: Context, videoId: String): MediaInfo? {
         val appContext = context.applicationContext
@@ -44,10 +45,7 @@ object YoutubeMediaInfoRetriever {
                 doInput = true
                 doOutput = true
                 requestMethod = "POST"
-                setRequestProperty(
-                    "User-Agent",
-                    "com.google.android.youtube/16.30.34 (Linux; U; Android 9; en_US)"
-                )
+                setRequestProperty("User-Agent", USER_AGENT)
                 setRequestProperty("Content-Type", "application/json")
 
                 outputStream.writer().use {
@@ -104,8 +102,6 @@ object YoutubeMediaInfoRetriever {
                     .map { Thumbnail.fromJSONObject(thumbnails.getJSONObject(it)) }
                     .toList()
 
-            val metadata = YoutubeMetadataParser.parseMetadata(root)
-
             return MediaInfo(
                 videoId = videoId,
                 title = title,
@@ -113,7 +109,7 @@ object YoutubeMediaInfoRetriever {
                 expiredTime = expiredTime,
                 thumbnails = thumbnailList,
                 mediaList = mediaList,
-                metadata = metadata,
+                userAgent = USER_AGENT,
             )
         } catch (e: Exception) {
             Log.e(TAG, "", e)
@@ -127,9 +123,9 @@ object YoutubeMediaInfoRetriever {
         val title: String,
         val isLiveContent: Boolean,
         val expiredTime: Long?,
+        val userAgent: String,
         val thumbnails: List<Thumbnail>,
         val mediaList: List<Media>,
-        val metadata: YoutubeMetadataParser.YoutubeMetadata?,
     )
 
     data class Thumbnail(

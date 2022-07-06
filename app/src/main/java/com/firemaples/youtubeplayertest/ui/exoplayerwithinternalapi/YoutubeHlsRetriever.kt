@@ -14,6 +14,8 @@ import javax.net.ssl.HttpsURLConnection
 
 object YoutubeHlsRetriever {
     private val TAG = YoutubeHlsRetriever::class.java.simpleName
+    private const val USER_AGENT =
+        "com.google.ios.youtube/16.28.2 (iPhone12,3; U; CPU iOS 13_5 like Mac OS X; en_US)"
 
     suspend fun retrieve(context: Context, videoId: String): HlsMediaInfo? {
         val appContext = context.applicationContext
@@ -50,10 +52,7 @@ object YoutubeHlsRetriever {
                 doInput = true
                 doOutput = true
                 requestMethod = "POST"
-                setRequestProperty(
-                    "User-Agent",
-                    "com.google.ios.youtube/16.28.2 (iPhone12,3; U; CPU iOS 13_5 like Mac OS X; en_US)"
-                )
+                setRequestProperty("User-Agent", USER_AGENT)
                 setRequestProperty("content-type", "application/json")
                 setRequestProperty("accept", "*/*")
                 setRequestProperty("Host", "www.youtube.com")
@@ -88,6 +87,7 @@ object YoutubeHlsRetriever {
                 title = title,
                 expiredTime = expiredTime,
                 hlsManifestUrl = hlsManifestUrl,
+                userAgent = USER_AGENT,
             )
         } catch (e: Exception) {
             Log.e(TAG, "", e)
@@ -99,6 +99,7 @@ object YoutubeHlsRetriever {
         val videoId: String,
         val title: String,
         val expiredTime: Long?,
+        val userAgent: String,
         val hlsManifestUrl: String,
     )
 }

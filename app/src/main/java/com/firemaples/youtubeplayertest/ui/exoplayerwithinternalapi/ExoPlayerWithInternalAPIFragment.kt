@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -36,8 +37,6 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
 
         private const val DEFAULT_WIDTH = 1280
     }
-
-    private val sourceType: SourceType = SourceType.HlsManifest
 
     private var _binding: FragmentExoPlayerWithInternalApiBinding? = null
     private val binding: FragmentExoPlayerWithInternalApiBinding get() = _binding!!
@@ -157,17 +156,31 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupPlayer()
+        loadMedia()
+        binding.sourceType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?, view: View?, position: Int, id: Long
+            ) {
+                loadMedia()
+            }
 
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+    }
+
+    private fun loadMedia() {
+        val sourceType: SourceType = SourceType.values()[binding.sourceType.selectedItemPosition]
         val videoId = YoutubeUtils.extractYoutubeVideoId(args.url) ?: return
         lifecycleScope.launch(Dispatchers.Main) {
-            var title: String = ""
+            var title = ""
             when (sourceType) {
                 SourceType.DashManifest -> {
-                    val mediaInfo = YoutubeMediaInfoRetriever.retrieve(requireContext(), videoId)
-                    Log.i(TAG, "DashManifest: $mediaInfo")
-                    if (mediaInfo != null) {
-                        title = mediaInfo.title
-                        playWithDashManifest(mediaInfo)
+                    val metadata = YoutubeDashManifestCreator.retrieve(requireContext(), videoId)
+                    Log.i(TAG, "DashManifest: $metadata")
+                    if (metadata != null) {
+                        title = metadata.title
+                        playWithDashManifest(metadata)
                     }
                 }
 
@@ -190,7 +203,7 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
                 }
             }
 
-            binding.title.text = title
+            binding.title.text = "${sourceType.name}: $title"
         }
     }
 
@@ -203,7 +216,7 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
             .minByOrNull { abs(DEFAULT_WIDTH - it.width!!) }
         if (nonAdaptive != null && !adaptiveOnly) {
             Log.i(TAG, "Selected default non adaptive media: $nonAdaptive")
-            loadMedia(nonAdaptive.toMediaSource())
+            loadMedia(nonAdaptive.toMediaSource(mediaInfo.userAgent))
         } else {
             val allAudios = mediaInfo.mediaList
                 .filter { it.isAdaptive && it.audioSampleRate != null && it.width == null }
@@ -261,7 +274,10 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
 //                            MergingMediaSource(true, audioSource, videoSource)
 
                 val source =
-                    MergingMediaSource(video.toMediaSource(), audio.toMediaSource())
+                    MergingMediaSource(
+                        video.toMediaSource(mediaInfo.userAgent),
+                        audio.toMediaSource(mediaInfo.userAgent),
+                    )
 
 //                        val source =
 //                            MergingMediaSource(true, videoSource)
@@ -273,8 +289,7 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
         }
     }
 
-    private fun playWithDashManifest(mediaInfo: YoutubeMediaInfoRetriever.MediaInfo) {
-        val metadata = mediaInfo.metadata ?: return
+    private fun playWithDashManifest(metadata: YoutubeDashManifestCreator.YoutubeMetadata) {
         Log.i(TAG, "DASH manifest: ${metadata.dashManifest}")
         val file = File(requireContext().cacheDir, "video_manifest.xml")
         file.writeText(metadata.dashManifest)
@@ -282,7 +297,7 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
 
         val uri = Uri.fromFile(file)
         val source = DashMediaSource
-            .Factory(DefaultDataSourceFactory(requireContext()))
+            .Factory(DefaultDataSourceFactory(requireContext(), metadata.userAgent))
             .createMediaSource(
                 MediaItem.fromUri(uri)
             )
@@ -293,7 +308,8 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
     private fun playWithHlsManifest(hlsMediaInfo: YoutubeHlsRetriever.HlsMediaInfo) {
         Log.i(TAG, "HLS manifest: ${hlsMediaInfo.hlsManifestUrl}")
 
-        val source = HlsMediaSource.Factory(DefaultHttpDataSource.Factory())
+        val dataSource = DefaultHttpDataSource.Factory().setUserAgent(hlsMediaInfo.userAgent)
+        val source = HlsMediaSource.Factory(dataSource)
             .createMediaSource(MediaItem.fromUri(hlsMediaInfo.hlsManifestUrl))
 
         loadMedia(source)
@@ -348,14 +364,16 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
     }
 
     private fun loadMedia(mediaSource: MediaSource) {
-        player?.setMediaSource(mediaSource, true)
-        player?.prepare()
-        player?.play()
+        val player = player ?: return
+
+        player.setMediaSource(mediaSource, true)
+        player.prepare()
+        player.play()
     }
 
-    private fun YoutubeMediaInfoRetriever.Media.toMediaSource(): MediaSource =
+    private fun YoutubeMediaInfoRetriever.Media.toMediaSource(userAgent: String? = null): MediaSource =
         ProgressiveMediaSource
-            .Factory(DefaultHttpDataSource.Factory())
+            .Factory(DefaultHttpDataSource.Factory().setUserAgent(userAgent))
             .createMediaSource(MediaItem.fromUri(url))
 
     enum class SourceType {

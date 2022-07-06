@@ -1,20 +1,85 @@
 package com.firemaples.youtubeplayertest.ui.exoplayerwithinternalapi
 
+import android.content.Context
+import android.util.Log
+import android.webkit.WebView
 import com.firemaples.youtubeplayertest.utils.YoutubeUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.io.IOException
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 
 
-object YoutubeMetadataParser {
+object YoutubeDashManifestCreator {
+    private val TAG = YoutubeDashManifestCreator::class.java.simpleName
+
+    private const val USER_AGENT =
+        "com.google.android.youtube/16.30.34 (Linux; U; Android 9; en_US)"
     private const val MIME_TYPE_PREFIX_AUDIO = "audio"
     private const val MIME_TYPE_PREFIX_VIDEO = "video"
     private const val FIELD_DELIMITER = "&"
-    private val REG_EXPIRED = "expire[=/]([^&/]*)".toRegex()
 
-    fun parseMetadata(root: JSONObject): YoutubeMetadata? {
+    suspend fun retrieve(context: Context, videoId: String): YoutubeMetadata? {
+        val appContext = context.applicationContext
+
+        return coroutineScope {
+            val userAgent = withContext(Dispatchers.Main) {
+                WebView(appContext).settings.userAgentString
+            }
+
+            val apiKey = withContext(Dispatchers.IO) {
+                YoutubeUtils.retrieveInnerTubeAPIKey(videoId, userAgent)
+            } ?: return@coroutineScope null
+
+            withContext(Dispatchers.IO) { retrieveMediaInfo(videoId, apiKey) }
+        }
+    }
+
+    private fun retrieveMediaInfo(videoId: String, apiKey: String): YoutubeMetadata? {
+        val payload =
+            "{\"context\":{\"client\":{\"hl\":\"en\",\"clientName\":\"ANDROID\",\"clientVersion\":\"16.30.34\",\"playbackContext\":{\"contentPlaybackContext\":{\"html5Preference\":\"HTML5_PREF_WANTS\"}}}},\"videoId\":\"$videoId\"}"
+
+        val response = try {
+            val conn =
+                URL("https://youtubei.googleapis.com/youtubei/v1/player?key=$apiKey&alt=json")
+                    .openConnection() as HttpsURLConnection
+            with(conn) {
+                useCaches = false
+                doInput = true
+                doOutput = true
+                requestMethod = "POST"
+                setRequestProperty("User-Agent", USER_AGENT)
+                setRequestProperty("Content-Type", "application/json")
+
+                outputStream.writer().use {
+                    it.write(payload)
+                    it.flush()
+                }
+            }
+
+            conn.inputStream.use { it.bufferedReader().readText() }
+        } catch (e: IOException) {
+            Log.e(TAG, "", e)
+            return null
+        }
+
+        try {
+            return parseMetadata(JSONObject(response))
+        } catch (e: Exception) {
+            Log.e(TAG, "", e)
+        }
+        return null
+    }
+
+    private fun parseMetadata(root: JSONObject): YoutubeMetadata? {
         val streamingData = root.getJSONObject("streamingData")
         if (!streamingData.has("adaptiveFormats")) return null
 
         val videoDetails = root.getJSONObject("videoDetails")
+        val title = videoDetails.getString("title")
         val lengthSeconds = videoDetails.getLong("lengthSeconds")
 
         val sb = StringBuilder()
@@ -115,13 +180,17 @@ object YoutubeMetadataParser {
         sb.append("</MPD>")
 
         return YoutubeMetadata(
+            title = title,
             dashManifest = sb.toString(),
             expiredAt = expiredAt,
+            userAgent = USER_AGENT,
         )
     }
 
     data class YoutubeMetadata(
+        val title: String,
         val expiredAt: Long?,
+        val userAgent: String,
 //        val mediaUrls: Map<Int, String>,
         val dashManifest: String,
     )

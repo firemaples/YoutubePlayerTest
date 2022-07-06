@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">YoutubePlayerTest</string>
     <string name="youtube_data_api_key"></string>
+
+    <string-array name="exo_player_internal_api_source_types">
+        <item>DashManifest</item>
+        <item>HlsManifest</item>
+        <item>MediaSources</item>
+    </string-array>
 </resources>
