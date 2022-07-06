@@ -160,6 +160,8 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
             val mediaInfo = YoutubeMediaInfoRetriever.retrieve(requireContext(), videoId)
             Log.i(TAG, "mediaInfo: $mediaInfo")
             if (mediaInfo != null) {
+                binding.title.text = mediaInfo.title
+
 //                playWithNonAdaptiveMediaSourceList(mediaInfo)
 
 //                playWithMediaSource(mediaInfo)
