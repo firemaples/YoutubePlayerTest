@@ -1,102 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="32dp"
     tools:context=".ui.main.MainFragment">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/youtubeURL"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Youtube URL">
+        android:fadeScrollbars="false">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="32dp"
+            tools:context=".ui.main.MainFragment">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/youtubeURL"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Youtube URL">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="iframe APIs"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/useWebViewWithIframeAPI"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Use WebView with iframe API"
-        android:textAllCaps="false" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/youtubeVideoSelector"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Youtube Video Selector"
-        android:textAllCaps="false" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="iframe APIs"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Internal APIs"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+            <Button
+                android:id="@+id/useWebViewWithIframeAPI"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Use WebView with iframe API"
+                android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/useExoPlayerWithInternalAPI"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Use ExoPlayer with internal API"
-        android:textAllCaps="false" />
+            <Button
+                android:id="@+id/youtubeVideoSelectorForIframeAPI"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Youtube Video Selector"
+                android:textAllCaps="false" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Other selections"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Internal APIs"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-    <Button
-        android:id="@+id/useYoutubeSDK"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Use Youtube Android SDK"
-        android:textAllCaps="false" />
+            <Button
+                android:id="@+id/useExoPlayerWithInternalAPI"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Use ExoPlayer with internal API"
+                android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/useAndroidYoutubePlayer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Use Android Youtube Player\n(3rdParty, WebView)"
-        android:textAllCaps="false" />
+            <Button
+                android:id="@+id/youtubeVideoSelectorForInternalAPI"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Youtube Video Selector"
+                android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/useExoPlayerWithUrlExtractor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Use ExoPlayer with URL Extractor"
-        android:textAllCaps="false" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Other selections"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-    <Button
-        android:id="@+id/useWebViewWithMobileYoutube"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Use WebView with Mobile Youtube"
-        android:textAllCaps="false"
-        android:visibility="gone" />
+            <Button
+                android:id="@+id/useYoutubeSDK"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Use Youtube Android SDK"
+                android:textAllCaps="false" />
 
-</LinearLayout>
+            <Button
+                android:id="@+id/useAndroidYoutubePlayer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Use Android Youtube Player\n(3rdParty, WebView)"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/useExoPlayerWithUrlExtractor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Use ExoPlayer with URL Extractor"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/useWebViewWithMobileYoutube"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Use WebView with Mobile Youtube"
+                android:textAllCaps="false"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</FrameLayout>

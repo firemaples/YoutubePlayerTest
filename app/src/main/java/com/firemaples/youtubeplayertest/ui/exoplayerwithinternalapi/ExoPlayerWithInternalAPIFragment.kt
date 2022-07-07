@@ -22,11 +22,11 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.trackselection.ExoTrackSelection
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
@@ -38,6 +38,7 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
         private val TAG = ExoPlayerWithInternalAPIFragment::class.java.simpleName
 
         private const val DEFAULT_WIDTH = 1280
+        private val DEFAULT_SOURCE_TYPE = SourceType.HlsManifest
     }
 
     private var _binding: FragmentExoPlayerWithInternalApiBinding? = null
@@ -46,6 +47,7 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
     private val args: ExoPlayerWithInternalAPIFragmentArgs by navArgs()
 
     private var player: ExoPlayer? = null
+    private var trackSelector: MappingTrackSelector? = null
     private var playOnResume: Boolean = false
 
     private val playerListener = object : Player.Listener {
@@ -112,26 +114,9 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
             trackSelections: TrackSelectionArray
         ) {
             super.onTracksChanged(trackGroups, trackSelections)
-            val selectedTracks = (0 until trackSelections.length).mapNotNull { i ->
-                val item = (trackSelections[i] as? ExoTrackSelection)
-                if (item != null) {
-                    val format = item.selectedFormat
-                    val reason = when (item.selectionReason) {
-                        C.SELECTION_REASON_ADAPTIVE -> "adaptive"
-                        C.SELECTION_REASON_CUSTOM_BASE -> "custom_base"
-                        C.SELECTION_REASON_INITIAL -> "initial"
-                        C.SELECTION_REASON_MANUAL -> "manual"
-                        C.SELECTION_REASON_TRICK_PLAY -> "track_play"
-                        C.SELECTION_REASON_UNKNOWN -> "unknown"
-                        else -> null
-                    }
-                    "$format, reason: $reason"
-                } else null
-            }
-            Log.i(TAG, "onTrackChanged: $selectedTracks")
-            binding.selectedTracks.text = selectedTracks.joinToString(separator = "\n") { "- $it" }
 
-            C.SELECTION_REASON_ADAPTIVE
+            updateTrackInfo(trackSelections)
+            updateQualitySelections()
         }
 
         override fun onPlayerError(error: ExoPlaybackException) {
@@ -157,6 +142,7 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.sourceType.setSelection(DEFAULT_SOURCE_TYPE.ordinal)
         setupPlayer()
         loadMedia()
         binding.sourceType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -217,6 +203,18 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
                 binding.expiredAt.isVisible = true
             } else {
                 binding.expiredAt.isVisible = false
+            }
+
+            launch(Dispatchers.Main) {
+                while (true) {
+                    val player = player ?: break
+
+                    val trackSelections = player.currentTrackSelections
+
+                    updateTrackInfo(trackSelections)
+
+                    delay(1000L)
+                }
             }
         }
     }
@@ -352,11 +350,61 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
     }
 
     private fun setupPlayer() {
+        // https://proandroiddev.com/lets-dive-into-exo-player-part-ii-adding-quality-control-a0c0b50cc628
+        // https://developer.android.com/codelabs/exoplayer-intro#4
+        val trackSelectionFactory = AdaptiveTrackSelection.Factory(
+            AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
+            2_000,
+            5_000,
+            0.3f,
+        )
+
+        val trackSelector = DefaultTrackSelector(requireContext(), trackSelectionFactory)
+        this.trackSelector = trackSelector
+        trackSelector.setParameters(
+            trackSelector.buildUponParameters()
+                .setMaxVideoSize(Int.MAX_VALUE, 720)
+        )
+
 //        val player = ExoPlayer.Builder(requireContext()).build()
-        val player = SimpleExoPlayer.Builder(requireContext()).build()
+        val player = SimpleExoPlayer.Builder(requireContext())
+            .setTrackSelector(trackSelector)
+            .build()
+//        player.addAnalyticsListener(EventLogger(trackSelector))
         this@ExoPlayerWithInternalAPIFragment.player = player
         binding.exoPlayer.player = player
         player.addListener(playerListener)
+    }
+
+    private fun updateQualitySelections() {
+        val trackSelector = trackSelector ?: return
+        val mapped = trackSelector.currentMappedTrackInfo ?: return
+        var rendererIndex = -1
+
+        for (i in 0 until mapped.rendererCount) {
+            val trackGroup = mapped.getTrackGroups(i)
+            if (!trackGroup.isEmpty && player?.getRendererType(i) == C.TRACK_TYPE_VIDEO) {
+                rendererIndex = i
+                break
+            }
+        }
+
+        if (rendererIndex < 0) return
+
+        val trackGroups = mapped.getTrackGroups(rendererIndex)
+        val availableFormats = arrayListOf<String>()
+        for (groupIndex in 0 until trackGroups.length) {
+            val group = trackGroups.get(groupIndex)
+            for (trackIndex in 0 until group.length) {
+                if (trackIndex == 0) {
+                    Log.i(TAG, "----------")
+                }
+                val format = group.getFormat(trackIndex)
+                Log.i(TAG, "item: $format")
+                availableFormats.add("${format.width}x${format.height}, ${format.codecs}, ${format.bitrate / 1000}K")
+            }
+        }
+        binding.availableFormats.text = availableFormats.joinToString(separator = "\n")
     }
 
     /**
@@ -383,6 +431,30 @@ class ExoPlayerWithInternalAPIFragment : Fragment() {
         player.setMediaSource(mediaSource, true)
         player.prepare()
         player.play()
+    }
+
+    private fun updateTrackInfo(
+        trackSelections: TrackSelectionArray
+    ) {
+        val selectedTracks = (0 until trackSelections.length).mapNotNull { i ->
+            val item = (trackSelections[i] as? ExoTrackSelection)
+            if (item != null) {
+                val format = item.selectedFormat
+                val reason = when (item.selectionReason) {
+                    C.SELECTION_REASON_ADAPTIVE -> "adaptive"
+                    C.SELECTION_REASON_CUSTOM_BASE -> "custom_base"
+                    C.SELECTION_REASON_INITIAL -> "initial"
+                    C.SELECTION_REASON_MANUAL -> "manual"
+                    C.SELECTION_REASON_TRICK_PLAY -> "track_play"
+                    C.SELECTION_REASON_UNKNOWN -> "unknown"
+                    else -> null
+                }
+                "$format, reason: $reason"
+            } else null
+        }
+        val trackInfo = selectedTracks.joinToString(separator = "\n") { "- $it" }
+        Log.i(TAG, "trackInfo: $trackInfo")
+        binding.selectedTracks.text = trackInfo
     }
 
     private fun YoutubeMediaInfoRetriever.Media.toMediaSource(userAgent: String? = null): MediaSource =

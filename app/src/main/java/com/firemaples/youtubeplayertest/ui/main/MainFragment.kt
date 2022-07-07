@@ -42,8 +42,9 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 //        binding.youtubeURL.editText?.setText("https://www.youtube.com/watch?v=U3DNz5asasA")
-        binding.youtubeURL.editText?.setText("https://www.youtube.com/watch?v=O3cUQrylUoo")
+//        binding.youtubeURL.editText?.setText("https://www.youtube.com/watch?v=O3cUQrylUoo")
 //        binding.youtubeURL.editText?.setText("https://www.youtube.com/watch?v=4MKtq_9n7RI")
+        binding.youtubeURL.editText?.setText("https://www.youtube.com/watch?v=c3nPloFgHkM")
 
         binding.useYoutubeSDK.setOnClickListener {
             getUrl {
@@ -87,11 +88,19 @@ class MainFragment : Fragment() {
             }
         }
 
-        binding.youtubeVideoSelector.setOnClickListener {
+        binding.youtubeVideoSelectorForIframeAPI.setOnClickListener {
             findNavController().navigate(MainFragmentDirections.actionMainFragmentToYoutubeVideoSelectorFragment())
         }
 
         binding.useExoPlayerWithInternalAPI.setOnClickListener {
+            getUrl {
+                val action = MainFragmentDirections
+                    .actionMainFragmentToExoPlayerWithInternalAPIFragment(it)
+                findNavController().navigate(action)
+            }
+        }
+
+        binding.youtubeVideoSelectorForInternalAPI.setOnClickListener {
             getVideoIdResultForExoPlayerWithInternalAPI
                 .launch(YoutubeVideoSelectorActivity.getIntent(requireActivity()))
 //            getUrl {
